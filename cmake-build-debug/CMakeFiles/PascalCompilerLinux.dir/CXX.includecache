@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/matthew/CLionProjects/PascalCompilerLinux/main.cpp
+stdlib.h
+-
+stdio.h
+-
+fcntl.h
+-
+unistd.h
+-
+errno.h
+-
+string.h
+-
+sys/stat.h
+-
+malloc.h
+-
+vector
+-
+

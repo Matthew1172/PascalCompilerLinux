@@ -1,0 +1,3 @@
+/home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/CMakeFiles/PascalCompilerLinux.dir

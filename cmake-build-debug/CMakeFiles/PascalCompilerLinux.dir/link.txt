@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/PascalCompilerLinux.dir/main.cpp.o -o PascalCompilerLinux 
