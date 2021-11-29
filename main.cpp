@@ -15,40 +15,26 @@
 //for memset();
 //#include <memory.h>
 //for strcmp();
-//#include <string.h>
+#include <string.h>
 #include <malloc.h>
 
 //token list
 #include <vector>
+#include "MyVariable.h"
+//symbol table
+#include <map>
 
 void initialize();
 void initCharArray();
 void gettoken();
 void printtoken();
 
-enum Tokens : int
-{
-    TK_EOF = 0,
-    TK_BEGIN = 2,
-    TK_END = 3,
-    TK_INTLIT = 100,
-    TK_CHARLIT = 101,
-    TK_REALLIT = 102,
-    TK_STRINGLIT = 103,
-    TK_DOT = 104,
-    OP_HALT = 105,
-    TK_LABEL = 106,
-    TK_VAR = 107,
-    TK_CONST = 108,
-    TK_A_VAR = 109,
-    TK_COMMA = 110,
-    TK_UNKNOWN = 200
-};
 
 int curtoken;
 int curvalue;
 const short MAXNAME = 31;
-char curname[MAXNAME];
+//char curname[MAXNAME];
+std::string curname;
 int curfile; // file index
 int curline; // current line number
 int curcol; // current column number
@@ -68,6 +54,7 @@ char catcode[256] = {
 };
 
 
+std::map<std::string , int> keywords;
 
 void compile();
 void header();
@@ -83,16 +70,17 @@ void const_declaration();
 void varList();
 
 int main() {
-
+/*
     initialize();
     gettoken();
     compile();
-/*
+*/
+    initialize();
 do {
     gettoken();
     printtoken();
 } while (curtoken != TK_EOF);
- */
+
 }
 
 void compile(){
@@ -124,7 +112,8 @@ void var_declaration(){
         //error();
         return;
     }
-    std::vector<Tokens> v;
+    auto* v = new std::vector<char*>;
+    //v->push_back(curname);
 
     varList();
 
@@ -134,6 +123,7 @@ void var_declaration(){
 }
 
 void varList(){
+    match(TK_UNKNOWN);
 
 }
 
@@ -170,8 +160,11 @@ void gettoken() {
             scanp should point to the first character beyond the identifier.
             */
             i1 = 0;
-            memset(curname, 0, sizeof curname);
-            curname[i1++] = c;
+            //memset(curname, 0, sizeof curname);
+            curname.clear();
+            //curname[i1++] = c;
+            curname += c;
+            i1++;
         r2:
             switch (catcode[c = *scanp++]) {
                 case 'L':
@@ -180,7 +173,9 @@ void gettoken() {
                 case 'D':
                     //digit
                     if (i1 <= MAXNAME) {
-                        curname[i1++] = c;
+                        //curname[i1++] = c;
+                        curname += c;
+                        i1++;
                     }
                     goto r2;
                 case 'C':
@@ -203,10 +198,14 @@ void gettoken() {
                     if it is, set the appropriate curtoken value, and if it isnt then
                     set current token to unknown
                     */
-                    if (strcmp(curname, "BEGIN") == 0) {
+
+
+
+                    //check the keyword symbol table
+/*                    if (curname == "BEGIN") {
                         curtoken = TK_BEGIN;
                     }
-                    else if (strcmp(curname, "END") == 0) {
+                    else if (curname == "END") {
                         curtoken = TK_END;
                     }else if (strcmp(curname, "VAR") == 0){
                         //now we expect a code block to follow
@@ -215,6 +214,12 @@ void gettoken() {
                     else {
                         curtoken = TK_UNKNOWN;
                     }
+                    */
+                    //assign token from keyword symbol table to curtoken
+                    //curtoken = keywords.at(curname);
+                    curtoken = keywords[curname];
+
+
                     //printf("the token is: %s", curname);
                     //printf("the token is: %d \n", curtoken);
                     return;
@@ -263,35 +268,17 @@ void initialize() {
     scanp = bf;
     line = 1;
     col = 1;
+
+
+    //initialize the keyword symbol table
+
+
+    keywords["IF"] = TK_IF;
+    keywords["ELSE"] = TK_IF;
+    keywords["VAR"] = TK_VAR;
+
+
 }
-
-/*
-void initialize() {
-	errno_t e;
-	FILE* f;
-	int numread, sz;
-
-	e = fopen_s(&f, "Test1.txt", "r");
-	if (e != 0) {
-		printf("Could not open the file for reading\n");
-		return;
-	}
-	printf("Opened the file for reading successfully\n");
-	fseek(f, 0, SEEK_END);
-	sz = ftell(f);
-	fseek(f, 0, SEEK_SET);
-
-	unsigned char* buff = new unsigned char[sz+1];
-	numread = fread(buff, sz, 1, f);
-	fclose(f);
-	buff[sz-1] = 0;
-	buff[sz] = 'K';
-
-	scanp = buff;
-	line = 1;
-	col = 1;
-}
-*/
 
 void printtoken() {
     switch (curtoken) {
