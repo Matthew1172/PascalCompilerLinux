@@ -6,6 +6,8 @@
 
 #IncludeRegexTransform: 
 
+/home/matthew/CLionProjects/PascalCompilerLinux/MyCatCodes.h
+
 /home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
 
 /home/matthew/CLionProjects/PascalCompilerLinux/MyVariable.h
@@ -13,28 +15,28 @@ MyTokens.h
 /home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
 
 /home/matthew/CLionProjects/PascalCompilerLinux/main.cpp
-stdlib.h
+iostream
 -
-stdio.h
+cstdlib
 -
 fcntl.h
 -
 unistd.h
 -
-errno.h
--
-string.h
+cerrno
 -
 sys/stat.h
 -
-string.h
--
-malloc.h
+cstring
 -
 vector
 -
+MyTokens.h
+/home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
 MyVariable.h
 /home/matthew/CLionProjects/PascalCompilerLinux/MyVariable.h
+MyCatCodes.h
+/home/matthew/CLionProjects/PascalCompilerLinux/MyCatCodes.h
 map
 -
 

@@ -3,4 +3,4 @@ project(PascalCompilerLinux)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(PascalCompilerLinux main.cpp MyVariable.h MyTokens.h)
+add_executable(PascalCompilerLinux main.cpp MyVariable.h MyTokens.h MyCatCodes.h)

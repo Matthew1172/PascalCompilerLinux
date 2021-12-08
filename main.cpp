@@ -1,39 +1,31 @@
 #define DEBUG 1
 #define error() printf("There was an error!")
 
-//#include <stdio.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <iostream>
+#include <cstdlib>
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
-#include <string.h>
+#include <cerrno>
 #include <sys/stat.h>
-
-//for toupper();
-//#include <ctype.h>
-//for memset();
-//#include <memory.h>
-//for strcmp();
-#include <string.h>
-#include <malloc.h>
-
+#include <cstring>
 //token list
 #include <vector>
+#include "MyTokens.h"
 #include "MyVariable.h"
+#include "MyCatCodes.h"
 //symbol table
 #include <map>
 
+using namespace std;
+
 void initialize();
-void initCharArray();
 void gettoken();
-void printtoken();
+//void printtoken();
 
 
 int curtoken;
 int curvalue;
 const short MAXNAME = 31;
-//char curname[MAXNAME];
 std::string curname;
 int curfile; // file index
 int curline; // current line number
@@ -43,18 +35,8 @@ char* scanp;
 int line;
 int col;
 
-char catcode[256] = {
-        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        'N', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, 'S', NULL, NULL, NULL, NULL, NULL, 'O', NULL, NULL, NULL, 'O', 'O', 'C', 'O', 'O', 'O', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D',
-        'A', NULL, 'O', 'O', 'O', NULL, NULL, 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L',
-        NULL, NULL, NULL, NULL, 'L', NULL,
-        'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', NULL, NULL, NULL, NULL, NULL
-};
 
-
-std::map<std::string , int> keywords;
+std::map<std::string , Tokens> keywords;
 
 void compile();
 void header();
@@ -78,7 +60,7 @@ int main() {
     initialize();
 do {
     gettoken();
-    printtoken();
+    printtoken(curtoken, curvalue, curname);
 } while (curtoken != TK_EOF);
 
 }
@@ -152,6 +134,26 @@ void gettoken() {
         case 'C':
             //comma
             curtoken = TK_COMMA;
+            break;
+        case 'I':
+            //semicolon
+            curtoken = TK_SEMICOLON;
+            break;
+        case 'A':
+            //we see a colon. Could either be assigning type or assigning value to a variable
+            //check the next byte to see if it is a space or an equal sign
+            switch(c = *scanp++){
+                case ' ':
+                    //it is assigning a type to a variable
+                    curtoken = TK_COLON;
+                    break;
+                case '=':
+                    curtoken = TK_ASSIGN;
+                    break;
+                default:
+                    break;
+            }
+            break;
         case 'L':
             //letter
             /*
@@ -160,26 +162,47 @@ void gettoken() {
             scanp should point to the first character beyond the identifier.
             */
             i1 = 0;
-            //memset(curname, 0, sizeof curname);
             curname.clear();
-            //curname[i1++] = c;
             curname += c;
             i1++;
         r2:
             switch (catcode[c = *scanp++]) {
+                //if it is not a letter, digit, or underscore
+                //then stop scanning, check keyword symbol table, check variable symbol table
+                //assign token, rollback scanp by 1 byte, return to main loop
                 case 'L':
                     //letter
-
                 case 'D':
                     //digit
                     if (i1 <= MAXNAME) {
-                        //curname[i1++] = c;
                         curname += c;
                         i1++;
                     }
                     goto r2;
+                case 'A':
+                    //we see a colon. Could either be assigning type or assigning value to a variable
+                    //check the next byte to see if it is a space or an equal sign
+
+                    switch(c = *scanp++){
+                        case ' ':
+                            //it is assigning a type to a variable
+                            curtoken = TK_COLON;
+                            break;
+                        case '=':
+                            curtoken = TK_ASSIGN;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case 'I':
+                    //semicolon
+                    curtoken = TK_SEMICOLON;
+                    //break;
                 case 'C':
                     //comma
+                    curtoken = TK_COMMA;
+                    //break;
                 case 'S':
                     //space
                     /*
@@ -198,30 +221,14 @@ void gettoken() {
                     if it is, set the appropriate curtoken value, and if it isnt then
                     set current token to unknown
                     */
-
-
-
-                    //check the keyword symbol table
-/*                    if (curname == "BEGIN") {
-                        curtoken = TK_BEGIN;
-                    }
-                    else if (curname == "END") {
-                        curtoken = TK_END;
-                    }else if (strcmp(curname, "VAR") == 0){
-                        //now we expect a code block to follow
-                        curtoken = TK_VAR;
-                    }
-                    else {
+                    //check the keyword symbol table for curname as key
+                    if(keywords[curname] == 0){
+                        //unknown token, and cannot be EOF
                         curtoken = TK_UNKNOWN;
+                    }else {
+                        //token is a keyword
+                        curtoken = keywords[curname];
                     }
-                    */
-                    //assign token from keyword symbol table to curtoken
-                    //curtoken = keywords.at(curname);
-                    curtoken = keywords[curname];
-
-
-                    //printf("the token is: %s", curname);
-                    //printf("the token is: %d \n", curtoken);
                     return;
                 case 0:
                     curtoken = TK_EOF;
@@ -230,9 +237,9 @@ void gettoken() {
                     curtoken = TK_UNKNOWN;
                     return;
             }
+            break;
         case 'S':
             //space
-            //goto restart;
         case 'N':
             //new line
             goto restart;
@@ -272,36 +279,13 @@ void initialize() {
 
     //initialize the keyword symbol table
 
-
+    keywords["BEGIN"] = TK_BEGIN;
+    keywords["END"] = TK_END;
     keywords["IF"] = TK_IF;
-    keywords["ELSE"] = TK_IF;
+    keywords["ELSE"] = TK_ELSE;
     keywords["VAR"] = TK_VAR;
-
+    keywords["DO"] = TK_DO;
+    keywords["WHILE"] = TK_WHILE;
 
 }
 
-void printtoken() {
-    switch (curtoken) {
-        case TK_INTLIT:
-            printf("int lit %d \n", curvalue);
-            break;
-        case TK_REALLIT:
-            printf("real lit %f \n", (float)curvalue);
-            break;
-        case TK_CHARLIT:
-            printf("char lit %c \n", (char)curvalue);
-            break;
-        case TK_STRINGLIT:
-            printf("string lit %s \n", (char*)curvalue);
-            break;
-        case TK_BEGIN:
-            printf("begin, begin \n");
-            break;
-        case TK_END:
-            printf("end, end \n");
-            break;
-        case TK_EOF:
-            printf("End of file \n");
-            break;
-    }
-}
