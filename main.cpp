@@ -9,7 +9,8 @@
 #include <sys/stat.h>
 #include <cstring>
 //token list
-#include <vector>
+//#include <vector>
+#include <list>
 #include "MyTokens.h"
 #include "MyVariable.h"
 #include "MyCatCodes.h"
@@ -38,6 +39,10 @@ int col;
 
 std::map<std::string , Tokens> keywords;
 
+const short MAXSTRINGS = 100;
+string poolOfStrings[MAXSTRINGS];
+int stringIndex = 0;
+
 void compile();
 void header();
 void declarations();
@@ -60,7 +65,7 @@ int main() {
     initialize();
 do {
     gettoken();
-    printtoken(curtoken, curvalue, curname);
+    printtoken(curtoken, curvalue, curname, poolOfStrings);
 } while (curtoken != TK_EOF);
 
 }
@@ -94,7 +99,7 @@ void var_declaration(){
         //error();
         return;
     }
-    auto* v = new std::vector<char*>;
+    //auto* v = new std::vector<char*>;
     //v->push_back(curname);
 
     varList();
@@ -129,8 +134,140 @@ void const_declaration(){
 void gettoken() {
     char c;
     int i1;
+
+    int value;
+    int base;
+
+    string curstring;
     restart:
     switch (catcode[c = *scanp++]) {
+        case 'O':
+            //operator
+            switch(c){
+                case '+':
+                    curtoken = TK_PLUS;
+                    break;
+                case '-':
+                    curtoken = TK_MINUS;
+                    break;
+                case '*':
+                    curtoken = TK_MUL;
+                    break;
+                case '/':
+                    curtoken = TK_DIV;
+                    break;
+                case '%':
+                    curtoken = TK_MOD;
+                    break;
+                case '=':
+                    curtoken = TK_EQ;
+                    break;
+                case '<':
+                    //Could be not equal, or less than, or less than/equal to, Left shift
+                    switch(c=*scanp++){
+                        case '>':
+                            //not equal
+                            curtoken = TK_NEQ;
+                            break;
+                        case '=':
+                            //less than or equal to
+                            curtoken = TK_LTE;
+                            break;
+                        case '<':
+                            //Left shift
+                            curtoken = TK_LS;
+                            break;
+                        default:
+                            //strictly less than
+                            curtoken = TK_LT;
+                            break;
+                    }
+                    *scanp--;
+                    break;
+                case '>':
+                    //Could be greater than, or greater than/equal to, or right shift
+                    switch(c=*scanp++){
+                        case '=':
+                            //greater than or equal to
+                            curtoken = TK_GTE;
+                            break;
+                        case '>':
+                            //Right shift
+                            curtoken = TK_RS;
+                            break;
+                        default:
+                            //strictly greater than
+                            curtoken = TK_GT;
+                            break;
+                    }
+                    *scanp--;
+                    break;
+                case '&':
+                    //binary AND
+                    curtoken = TK_BAND;
+                    break;
+                case '|':
+                    //binary OR
+                    curtoken = TK_BOR;
+                    break;
+                case '~':
+                    //binary NOT
+                    curtoken = TK_BNOT;
+                    break;
+                default:
+                    //we don't know what this is. Shouldn't get here.
+                    curtoken = TK_UNKNOWN;
+                    break;
+            }
+            break;
+        case 'Q':
+            //single quote
+            //check if it is a char lit, aka only 1 character between single quotes like 'a' or ''''
+
+
+            if(stringIndex >= MAXSTRINGS){
+                cout << "Too many strings in program" << endl;
+                exit(-555);
+            }
+            //don't handle empty strings
+            //if it is a char lit, then *scanp+2 should be another single quote. If it is, then
+            //make *scanp++ a charlit, save ascii value of character in curvalue, and do scanp++;
+            r3:
+            switch(catcode[c = *scanp++]){
+                case 'Q':
+                    //check if next character after it is a single quote, if it is then it is an escape
+                    c = *scanp++;
+                    if(c != '\'' && curstring.length() == 1){
+                        //this is not an escape sequence, could be a charlit
+                            //don't take into account ''' character
+                            //this is a character
+                            curtoken = TK_CHARLIT;
+                            curvalue = (unsigned char) curstring[0];
+                            curstring = "";
+                            return;
+                    }else if(c != '\''){
+                            //this is not an escape sequence, set the string and curtoken and return
+                            poolOfStrings[stringIndex] = curstring;
+                            curvalue = stringIndex;
+                            stringIndex++;
+                            curtoken = TK_STRINGLIT;
+                            *scanp--;
+                            curstring = "";
+                            return;
+                    }
+                default:
+                    curstring += c;
+                    goto r3;
+            }
+            break;
+        case 'P':
+            //right or left parenthesis
+            if(c == '('){
+                curtoken = TK_LP;
+            }else{
+                curtoken = TK_RP;
+            }
+            break;
         case 'C':
             //comma
             curtoken = TK_COMMA;
@@ -153,6 +290,31 @@ void gettoken() {
                 default:
                     break;
             }
+            break;
+        case 'D':
+            //scan ahead, and use whatever can be part of the number. Collect all digits and look for special cases like .
+            //which would mean real. like letter 'e' which means real also, and perhaps something else like # to denote numbers in different bases.
+            //collect number together, determine what constatnt you got, and return that constant.
+
+            value=0;
+            base=10;
+            while (c>='0'&&c<='9') {
+                value=value*base+c-'0';
+                c=*scanp++;
+            }
+            switch(c){
+                case '.':
+                case 'E':
+                    //reallit
+                    curtoken = TK_REALLIT;
+                    break;
+                default:
+                    //end of number, intlit
+                    curvalue = value;
+                    curtoken = TK_INTLIT;
+                    break;
+            }
+            *scanp--;
             break;
         case 'L':
             //letter
@@ -179,48 +341,9 @@ void gettoken() {
                         i1++;
                     }
                     goto r2;
-                case 'A':
-                    //we see a colon. Could either be assigning type or assigning value to a variable
-                    //check the next byte to see if it is a space or an equal sign
 
-                    switch(c = *scanp++){
-                        case ' ':
-                            //it is assigning a type to a variable
-                            curtoken = TK_COLON;
-                            break;
-                        case '=':
-                            curtoken = TK_ASSIGN;
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                case 'I':
-                    //semicolon
-                    curtoken = TK_SEMICOLON;
-                    //break;
-                case 'C':
-                    //comma
-                    curtoken = TK_COMMA;
-                    //break;
-                case 'S':
-                    //space
-                    /*
-                    we know that this is the end of the token, so
-                    print the token and then return from gettoken(), but before that
-                    check if curname is equal to "BEGIN" or "END" or "IF" or "WHILE"
-                    if it is, set the appropriate curtoken value, and if it isnt then
-                    set current token to unknown
-                    */
-                case 'N':
-                    //new line
-                    /*
-                    we know that this is the end of the token, so
-                    print the token and then return from gettoken(), but before that
-                    check if curname is equal to "BEGIN" or "END" or "IF" or "WHILE"
-                    if it is, set the appropriate curtoken value, and if it isnt then
-                    set current token to unknown
-                    */
+                default:
+                    //we saw a token that wasn't a letter underscore or digit.
                     //check the keyword symbol table for curname as key
                     if(keywords[curname] == 0){
                         //unknown token, and cannot be EOF
@@ -229,24 +352,22 @@ void gettoken() {
                         //token is a keyword
                         curtoken = keywords[curname];
                     }
-                    return;
-                case 0:
-                    curtoken = TK_EOF;
-                default:
-                    //don't know what this token is
-                    curtoken = TK_UNKNOWN;
-                    return;
+                    *scanp--;
+                    break;
             }
             break;
         case 'S':
             //space
+            goto restart;
         case 'N':
             //new line
+            curline++;
             goto restart;
         case 0:
             curtoken = TK_EOF;
+            break;
     }
-
+    return;
 }
 
 void initialize() {
@@ -276,16 +397,8 @@ void initialize() {
     line = 1;
     col = 1;
 
-
     //initialize the keyword symbol table
-
-    keywords["BEGIN"] = TK_BEGIN;
-    keywords["END"] = TK_END;
-    keywords["IF"] = TK_IF;
-    keywords["ELSE"] = TK_ELSE;
-    keywords["VAR"] = TK_VAR;
-    keywords["DO"] = TK_DO;
-    keywords["WHILE"] = TK_WHILE;
+    keywords = initSymTable();
 
 }
 

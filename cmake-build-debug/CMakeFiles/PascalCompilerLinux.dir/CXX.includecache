@@ -9,6 +9,8 @@
 /home/matthew/CLionProjects/PascalCompilerLinux/MyCatCodes.h
 
 /home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
+map
+-
 
 /home/matthew/CLionProjects/PascalCompilerLinux/MyVariable.h
 MyTokens.h
@@ -29,7 +31,7 @@ sys/stat.h
 -
 cstring
 -
-vector
+list
 -
 MyTokens.h
 /home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
