@@ -1,6 +1,9 @@
 #define DEBUG 1
 #define error() printf("There was an error!")
 
+//for transform() to turn a string to all uppercase
+#include <algorithm>
+
 #include <iostream>
 #include <cstdlib>
 #include <fcntl.h>
@@ -139,6 +142,8 @@ void gettoken() {
     int base;
 
     string curstring;
+    string key;
+
     restart:
     switch (catcode[c = *scanp++]) {
         case 'O':
@@ -223,7 +228,6 @@ void gettoken() {
         case 'Q':
             //single quote
             //check if it is a char lit, aka only 1 character between single quotes like 'a' or ''''
-
 
             if(stringIndex >= MAXSTRINGS){
                 cout << "Too many strings in program" << endl;
@@ -345,12 +349,14 @@ void gettoken() {
                 default:
                     //we saw a token that wasn't a letter underscore or digit.
                     //check the keyword symbol table for curname as key
-                    if(keywords[curname] == 0){
+                    key = curname;
+                    transform(key.begin(), key.end(),key.begin(), ::toupper);
+                    if(keywords[key] == 0){
                         //unknown token, and cannot be EOF
                         curtoken = TK_UNKNOWN;
                     }else {
                         //token is a keyword
-                        curtoken = keywords[curname];
+                        curtoken = keywords[key];
                     }
                     *scanp--;
                     break;
@@ -367,7 +373,6 @@ void gettoken() {
             curtoken = TK_EOF;
             break;
     }
-    return;
 }
 
 void initialize() {

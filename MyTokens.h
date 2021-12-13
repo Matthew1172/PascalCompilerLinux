@@ -55,6 +55,7 @@ enum Tokens : int
     TK_TO = 120,
     TK_RP = 121,
     TK_LP = 122,
+    TK_THEN = 123,
     TK_UNKNOWN = 200
 };
 
@@ -70,6 +71,7 @@ map<std::string , Tokens>  initSymTable(){
     keywords["WHILE"] = TK_WHILE;
     keywords["FOR"] = TK_FOR;
     keywords["INTEGER"] = TK_INT;
+    keywords["THEN"] = TK_THEN;
 
     keywords["AND"] = TK_AND;
     keywords["OR"] = TK_OR;
@@ -199,6 +201,9 @@ void printtoken(int curtoken, int curvalue, const string& curname, string poolOf
             break;
         case TK_BNOT:
             cout << "token binary not" << endl;
+            break;
+        case TK_THEN:
+            cout << "token then" << endl;
             break;
         default:
             cout << "Unknown token: " << curname << endl;

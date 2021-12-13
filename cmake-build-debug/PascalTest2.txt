@@ -1,11 +1,11 @@
 
-IF x < 5 :
-VAR
-i,j,k : INTEGER;
-BEGIN
-FOR i:=1 TO 10 DO writeln('Don''t "test" '''' me!! '''' ')
-IF x < 5 :
-DO writeln('Inside IF block')
-ELSE :
-DO writeln('Inside ELSE block')
+if x < 5 THEN
+var
+i,j,k : iNtEgEr;
+bEgIn
+for i:=1 TO 10 do writeln('Don''t "test" '''' me!! '''' ')
+IF x < 5 tHen
+writeln('Inside IF block')
+ELSE
+writeln('Inside ELSE block')
 END
