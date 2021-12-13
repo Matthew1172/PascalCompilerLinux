@@ -12,10 +12,6 @@
 map
 -
 
-/home/matthew/CLionProjects/PascalCompilerLinux/MyVariable.h
-MyTokens.h
-/home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
-
 /home/matthew/CLionProjects/PascalCompilerLinux/main.cpp
 algorithm
 -
@@ -37,8 +33,6 @@ list
 -
 MyTokens.h
 /home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
-MyVariable.h
-/home/matthew/CLionProjects/PascalCompilerLinux/MyVariable.h
 MyCatCodes.h
 /home/matthew/CLionProjects/PascalCompilerLinux/MyCatCodes.h
 map

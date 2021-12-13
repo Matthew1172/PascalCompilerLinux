@@ -88,9 +88,6 @@
 		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h">
 			<Option target="PascalCompilerLinux"/>
 		</Unit>
-		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/MyVariable.h">
-			<Option target="PascalCompilerLinux"/>
-		</Unit>
 		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/main.cpp">
 			<Option target="PascalCompilerLinux"/>
 		</Unit>

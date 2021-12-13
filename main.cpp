@@ -15,7 +15,6 @@
 //#include <vector>
 #include <list>
 #include "MyTokens.h"
-#include "MyVariable.h"
 #include "MyCatCodes.h"
 //symbol table
 #include <map>
