@@ -30,6 +30,7 @@ enum Tokens : int
     TK_BNOT = 34,
     TK_LS = 35,
     TK_RS = 36,
+    TK_XOR = 37,
     TK_LTE = 38,
     TK_NOT = 39,
     TK_COMMA = 50,

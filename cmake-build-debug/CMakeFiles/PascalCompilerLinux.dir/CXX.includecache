@@ -12,6 +12,8 @@
 map
 -
 
+/home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h
+
 /home/matthew/CLionProjects/PascalCompilerLinux/main.cpp
 algorithm
 -
@@ -29,12 +31,12 @@ sys/stat.h
 -
 cstring
 -
-list
+map
 -
 MyTokens.h
 /home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
 MyCatCodes.h
 /home/matthew/CLionProjects/PascalCompilerLinux/MyCatCodes.h
-map
--
+MyTypes.h
+/home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h
 

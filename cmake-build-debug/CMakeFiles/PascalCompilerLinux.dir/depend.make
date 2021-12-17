@@ -4,4 +4,5 @@
 CMakeFiles/PascalCompilerLinux.dir/main.cpp.o: \
  ../MyCatCodes.h \
  ../MyTokens.h \
+ ../MyTypes.h \
  ../main.cpp

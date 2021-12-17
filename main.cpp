@@ -1,30 +1,29 @@
 #define DEBUG 1
-#define error() printf("There was an error!")
 
 //for transform() to turn a string to all uppercase
 #include <algorithm>
-
+//for printing tokens
 #include <iostream>
+//for linux syscall
 #include <cstdlib>
+//for opening file using linux syscall
 #include <fcntl.h>
+//for linux syscall
 #include <unistd.h>
+//for linux syscalls
 #include <cerrno>
+//to get file size using linux syscall
 #include <sys/stat.h>
+//for tokens
 #include <cstring>
-//token list
-//#include <vector>
-#include <list>
+//symbol table for keywords and identifiers
+#include <map>
+//
 #include "MyTokens.h"
 #include "MyCatCodes.h"
-//symbol table
-#include <map>
+#include "MyTypes.h"
 
 using namespace std;
-
-void initialize();
-void gettoken();
-//void printtoken();
-
 
 int curtoken;
 int curvalue;
@@ -33,30 +32,194 @@ std::string curname;
 int curfile; // file index
 int curline; // current line number
 int curcol; // current column number
-
 char* scanp;
 int line;
 int col;
-
-
-std::map<std::string , Tokens> keywords;
-
 const short MAXSTRINGS = 100;
 string poolOfStrings[MAXSTRINGS];
 int stringIndex = 0;
+std::map<std::string , Tokens> keywords;
 
+void initialize();
+void gettoken();
 void compile();
 void header();
 void declarations();
 void begin_statement();
 void match(Tokens t);
 void emit_opcode(Tokens t);
-
 void label_declaration();
 void var_declaration();
 void const_declaration();
-
 void varList();
+void error();
+
+void G();
+Types E();
+Types T();
+Types F();
+
+/*
+E ⇒ E + T | E − T | T
+T ⇒ T ∗ F | T/F | F
+F ⇒ eps | − F | (E) | LIT | VAR
+*/
+
+/*
+
+G ⇒ E EOF
+E ⇒ TE'
+E' ⇒ +TE' | −TE' | eps
+T ⇒ FT'
+T' ⇒ ∗FT | /TF | eps
+F ⇒ +F | −F | (E) | LIT | VAR
+*/
+
+/*
+G ⇒ E EOF
+E ⇒ T E'
+E' ⇒ +T [ADD] E' | −T [SUB] E' | eps
+T ⇒ FT'
+T' ⇒ ∗F [MUL] T | /T [DIV] F | eps
+F ⇒ +F [NOP] | −F [NEG] | (E) | LIT [LIT]
+*/
+Types do_ADD(Types types, Types types1);
+
+Types do_SUB(Types types, Types types1);
+
+Types do_OR(Types types, Types types1);
+
+Types do_XOR(Types types, Types types1);
+
+//G ⇒ E EOF
+void G() {
+    E();
+    match(TK_EOF);
+}
+
+//E ⇒ T E'
+//E' ⇒ +T [ADD] E' | −T [SUB] E' | eps
+
+/*
+void E() {
+    T();
+    while(curtoken==TK_PLUS||curtoken==TK_MINUS) {
+        switch(curtoken) {
+            case TK_PLUS:
+                match(TK_PLUS);
+                T();
+                //action(ADD);
+                break;
+            case TK_MINUS:
+                match(TK_MINUS);
+                T();
+                //action(SUB);
+                break;
+            case TK_OR:
+                match(TK_OR);
+                T();
+                //action(OR);
+                break;
+            case TK_XOR:
+                match(TK_XOR);
+                T();
+                //action(XOR);
+                break;
+            default:
+                break;
+        }
+    }
+}
+*/
+Types E() {
+    Types t1; // type of 1st argument
+    Types t2; // type of 2nd argument
+    t1=T();
+    while(curtoken==TK_PLUS
+    ||curtoken==TK_MINUS
+    ||curtoken==TK_OR) {
+        switch(curtoken) {
+            case TK_PLUS:
+                match(TK_PLUS);
+                t2=T();
+                t1=do_ADD(t1,t2);
+                break;
+            case TK_MINUS:
+                match(TK_MINUS);
+                t2=T();
+                t1=do_SUB(t1,t2);
+                break;
+            case TK_OR:
+                match(TK_OR);
+                t2=T();
+                t1=do_OR(t1,t2);
+                break;
+            case TK_XOR:
+                match(TK_XOR);
+                t2=T();
+                t1=do_XOR(t1,t2);
+                //action(XOR);
+                break;
+            default:
+                break;
+        }
+    }
+    return t1;
+}
+
+//T ⇒ FT'
+//T' ⇒ ∗F [MUL] T | /T [DIV] F | eps
+Types T(){
+    Types t1; // type of 1st argument
+    Types t2; // type of 2nd argument
+    t1=F();
+    while(curtoken==TK_MUL||curtoken==TK_DIV) {
+        switch(curtoken) {
+            case TK_MUL:
+                match(TK_MUL);
+                t2=T();
+                t1=do_MUL(t1,t2);
+                break;
+            case TK_DIV:
+                //something special needs to go here..?
+                match(TK_DIV);
+                t2=T();
+                t1=do_DIV(t1,t2);
+                break;
+            case TK_AND:
+                match(TK_AND);
+                t2=T();
+                t1=do_AND(t1,t2);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+//F ⇒ +F [NOP] | −F [NEG] | not F [NOT] | (E) | LIT [LIT]
+Types F(){
+    switch (curtoken) {
+        case TK_PLUS:
+            match(TK_PLUS);
+            F();
+            break;
+        case TK_MINUS:
+            match(TK_MINUS);
+            F();
+            break;
+        case TK_RP:
+            match(TK_RP);
+            E();
+            match(TK_LP);
+            break;
+        case TK_INTLIT:
+            match(TK_INTLIT);
+            break;
+        default:
+            break;
+    }
+}
 
 int main() {
 /*
@@ -65,11 +228,23 @@ int main() {
     compile();
 */
     initialize();
-do {
-    gettoken();
-    printtoken(curtoken, curvalue, curname, poolOfStrings);
-} while (curtoken != TK_EOF);
+    do {
+        gettoken();
+        printtoken(curtoken, curvalue, curname, poolOfStrings);
+    } while (curtoken != TK_EOF);
+}
 
+void error() {
+    printf("\n\n\n Syntax error!"); exit(-1);
+}
+
+void match(Tokens t){
+    if(curtoken != t){
+        error();
+        return;
+    }
+    if(DEBUG) printf("%c",curtoken);
+    gettoken();
 }
 
 void compile(){
@@ -114,15 +289,6 @@ void var_declaration(){
 void varList(){
     match(TK_UNKNOWN);
 
-}
-
-void match(Tokens t){
-    if(curtoken != t){
-        error();
-        return;
-    }
-    if(DEBUG) printf("match");
-    gettoken();
 }
 
 void label_declaration(){
@@ -297,7 +463,7 @@ void gettoken() {
         case 'D':
             //scan ahead, and use whatever can be part of the number. Collect all digits and look for special cases like .
             //which would mean real. like letter 'e' which means real also, and perhaps something else like # to denote numbers in different bases.
-            //collect number together, determine what constatnt you got, and return that constant.
+            //collect number together, determine what constant you got, and return that constant.
 
             value=0;
             base=10;
