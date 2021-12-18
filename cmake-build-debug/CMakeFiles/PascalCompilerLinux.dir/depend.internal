@@ -3,6 +3,7 @@
 
 CMakeFiles/PascalCompilerLinux.dir/Emitter.cpp.o
  /home/matthew/CLionProjects/PascalCompilerLinux/MyOpcodes.h
+ /home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h
  /home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/Emitter.cpp
  /home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/Emitter.h
 CMakeFiles/PascalCompilerLinux.dir/main.cpp.o

@@ -79,10 +79,99 @@ Types F();
 Types do_XOR(Types arg1, Types arg2);
 Types do_OR(Types arg1, Types arg2);
 Types do_SUB(Types arg1, Types arg2);
+
+//int+int=int
+//int+real=real
+//real+int=real
+//real+real=real
 Types do_ADD(Types arg1, Types arg2);
 Types do_MUL(Types arg1, Types arg2);
 Types do_DIV(Types arg1, Types arg2);
 Types do_AND(Types arg1, Types arg2);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int main() {
+/*
+    initialize();
+    gettoken();
+    compile();
+*/
+    MyEmitter->setFilepath(pcode);
+    MyEmitter->createOutputFile();
+
+    //MyEmitter->emit_opcode(OP_PUSHI);
+    //MyEmitter->emit_int(66);
+
+    initialize();
+    gettoken();
+    G();
+    /*
+    do {
+        gettoken();
+        printtoken(curtoken, curvalue, curname, poolOfStrings);
+    } while (curtoken != TK_EOF);
+     */
+
+    //close file
+    if(close(fd) != 0){
+        strerror(errno);
+        exit(-555);
+    }
+    printf("close() source file successful! \n");
+}
+
+void error() {
+    printf("\n\n\nSyntax error! line: %d", curline);
+    exit(-1);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ *
+ * BEGIN PARSER
+ *
+ *
+ */
+
+
+
+
 
 
 /*
@@ -222,41 +311,6 @@ Types F(){
     }
 }
 
-int main() {
-/*
-    initialize();
-    gettoken();
-    compile();
-*/
-    MyEmitter->setFilepath(pcode);
-    MyEmitter->createOutputFile();
-
-    //MyEmitter->emit_opcode(OP_PUSHI);
-    //MyEmitter->emit_int(66);
-
-    initialize();
-    gettoken();
-    G();
-    /*
-    do {
-        gettoken();
-        printtoken(curtoken, curvalue, curname, poolOfStrings);
-    } while (curtoken != TK_EOF);
-     */
-
-    //close file
-    if(close(fd) != 0){
-        strerror(errno);
-        exit(-555);
-    }
-    printf("close() source file successful! \n");
-}
-
-void error() {
-    printf("\n\n\nSyntax error! line: %d", curline);
-    exit(-1);
-}
-
 void match(Tokens t){
     if(curtoken != t){
         error();
@@ -316,6 +370,141 @@ void label_declaration(){
 void const_declaration(){
 
 }
+
+
+Types do_XOR(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT) {
+        return TP_INT;
+    }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
+        return TP_BOOL;
+    }else{
+        return TP_UNKNOWN;
+    }
+}
+
+Types do_OR(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT) {
+        return TP_INT;
+    }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
+        return TP_BOOL;
+    }else{
+        return TP_UNKNOWN;
+    }
+}
+
+Types do_SUB(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT){
+        return TP_INT;
+    }else if(arg1 == TP_INT && arg2 == TP_REAL){
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_INT){
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_REAL){
+        //emit([OP_XCHG, OP_CVR, OP_XCHG, OP_FSUB])
+        return TP_REAL;
+    }else{
+        return TP_UNKNOWN;
+    }
+}
+
+//int+int=int
+//int+real=real
+//real+int=real
+//real+real=real
+Types do_ADD(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_ADD);
+        return TP_INT;
+    }else if(arg1 == TP_INT && arg2 == TP_REAL){
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_CVR);
+        MyEmitter->emit_opcode(OP_FADD);
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_CVR);
+        MyEmitter->emit_opcode(OP_FADD);
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_REAL){
+        MyEmitter->emit_opcode(OP_FADD);
+        return TP_REAL;
+    }else{
+        return TP_UNKNOWN;
+    }
+}
+
+Types do_MUL(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_MUL);
+        return TP_INT;
+    }else if(arg1 == TP_INT && arg2 == TP_REAL){
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_CVR);
+        MyEmitter->emit_opcode(OP_FMUL);
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_CVR);
+        MyEmitter->emit_opcode(OP_FMUL);
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_REAL){
+        //emit([OP_XCHG, OP_CVR, OP_FADD])
+        MyEmitter->emit_opcode(OP_FMUL);
+        return TP_REAL;
+    }else{
+        return TP_UNKNOWN;
+    }
+}
+
+Types do_DIV(Types arg1, Types arg2) {
+    //similar to add
+    return TP_INT;
+}
+
+Types do_AND(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT) {
+        return TP_INT;
+    }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
+        return TP_BOOL;
+    }else{
+        return TP_UNKNOWN;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ *
+ * BEGIN SCANNER
+ *
+ *
+ */
+
+
+
+
 
 void gettoken() {
     char c;
@@ -419,28 +608,28 @@ void gettoken() {
             //don't handle empty strings
             //if it is a char lit, then *scanp+2 should be another single quote. If it is, then
             //make *scanp++ a charlit, save ascii value of character in curvalue, and do scanp++;
-            r3:
+        r3:
             switch(catcode[c = *scanp++]){
                 case 'Q':
                     //check if next character after it is a single quote, if it is then it is an escape
                     c = *scanp++;
                     if(c != '\'' && curstring.length() == 1){
                         //this is not an escape sequence, could be a charlit
-                            //don't take into account ''' character
-                            //this is a character
-                            curtoken = TK_CHARLIT;
-                            curvalue = (unsigned char) curstring[0];
-                            curstring = "";
-                            return;
+                        //don't take into account ''' character
+                        //this is a character
+                        curtoken = TK_CHARLIT;
+                        curvalue = (unsigned char) curstring[0];
+                        curstring = "";
+                        return;
                     }else if(c != '\''){
-                            //this is not an escape sequence, set the string and curtoken and return
-                            poolOfStrings[stringIndex] = curstring;
-                            curvalue = stringIndex;
-                            stringIndex++;
-                            curtoken = TK_STRINGLIT;
-                            *scanp--;
-                            curstring = "";
-                            return;
+                        //this is not an escape sequence, set the string and curtoken and return
+                        poolOfStrings[stringIndex] = curstring;
+                        curvalue = stringIndex;
+                        stringIndex++;
+                        curtoken = TK_STRINGLIT;
+                        *scanp--;
+                        curstring = "";
+                        return;
                     }
                 default:
                     curstring += c;
@@ -493,6 +682,8 @@ void gettoken() {
                 case '.':
                 case 'E':
                     //reallit
+                    //keep scanning numbers. this time incrementally change base by 10^i where i=1,2,3,...,n
+
                     curtoken = TK_REALLIT;
                     break;
                 default:
@@ -582,85 +773,10 @@ void initialize() {
     scanp = bf;
     line = 1;
     col = 1;
+    curline = line;
+    curcol = col;
 
     //initialize the keyword symbol table
     keywords = initSymTable();
 
 }
-
-Types do_XOR(Types arg1, Types arg2) {
-    if(arg1 == TP_INT && arg2 == TP_INT) {
-        return TP_INT;
-    }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
-        return TP_BOOL;
-    }else{
-        return TP_UNKNOWN;
-    }
-}
-
-Types do_OR(Types arg1, Types arg2) {
-    if(arg1 == TP_INT && arg2 == TP_INT) {
-        return TP_INT;
-    }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
-        return TP_BOOL;
-    }else{
-        return TP_UNKNOWN;
-    }
-}
-
-Types do_SUB(Types arg1, Types arg2) {
-    if(arg1 == TP_INT && arg2 == TP_INT){
-        return TP_INT;
-    }else if(arg1 == TP_INT && arg2 == TP_REAL){
-        return TP_REAL;
-    }else if(arg1 == TP_REAL && arg2 == TP_INT){
-        return TP_REAL;
-    }else if(arg1 == TP_REAL && arg2 == TP_REAL){
-        //emit([OP_XCHG, OP_CVR, OP_XCHG, OP_FSUB])
-        return TP_REAL;
-    }else{
-        return TP_UNKNOWN;
-    }
-}
-
-//int+int=int
-//int+real=real
-//real+int=real
-//real+real=real
-Types do_ADD(Types arg1, Types arg2) {
-    if(arg1 == TP_INT && arg2 == TP_INT){
-        MyEmitter->emit_opcode(OP_ADD);
-        return TP_INT;
-    }else if(arg1 == TP_INT && arg2 == TP_REAL){
-        return TP_REAL;
-    }else if(arg1 == TP_REAL && arg2 == TP_INT){
-        return TP_REAL;
-    }else if(arg1 == TP_REAL && arg2 == TP_REAL){
-        //emit([OP_XCHG, OP_CVR, OP_FADD])
-        return TP_REAL;
-    }else{
-        return TP_UNKNOWN;
-    }
-}
-
-Types do_MUL(Types arg1, Types arg2) {
-    //similar to add
-    return TP_INT;
-}
-
-Types do_DIV(Types arg1, Types arg2) {
-    //similar to add
-    return TP_INT;
-}
-
-Types do_AND(Types arg1, Types arg2) {
-    if(arg1 == TP_INT && arg2 == TP_INT) {
-        return TP_INT;
-    }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
-        return TP_BOOL;
-    }else{
-        return TP_UNKNOWN;
-    }
-}
-
-

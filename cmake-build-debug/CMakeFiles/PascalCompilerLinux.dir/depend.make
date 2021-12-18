@@ -3,6 +3,7 @@
 
 CMakeFiles/PascalCompilerLinux.dir/Emitter.cpp.o: \
  ../MyOpcodes.h \
+ ../MyTypes.h \
  Emitter.cpp \
  Emitter.h
 CMakeFiles/PascalCompilerLinux.dir/main.cpp.o: \

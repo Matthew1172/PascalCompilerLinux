@@ -26,6 +26,7 @@ enum Opcodes : int
     OP_LSS = 16,
     OP_GEQ = 17,
     OP_LEQ = 18,
+    OP_FMUL = 99,
     OP_FADD = 100,
     OP_FSUB = 101,
     OP_NEG = 102,
