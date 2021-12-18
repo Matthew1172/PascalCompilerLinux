@@ -85,6 +85,12 @@
 		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/MyCatCodes.h">
 			<Option target="PascalCompilerLinux"/>
 		</Unit>
+		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/MyEmulator.cpp">
+			<Option target="PascalCompilerLinux"/>
+		</Unit>
+		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/MyEmulator.h">
+			<Option target="PascalCompilerLinux"/>
+		</Unit>
 		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/MyOpcodes.h">
 			<Option target="PascalCompilerLinux"/>
 		</Unit>

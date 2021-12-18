@@ -1,1 +1,1 @@
-/usr/bin/c++ -g CMakeFiles/PascalCompilerLinux.dir/main.cpp.o CMakeFiles/PascalCompilerLinux.dir/Emitter.cpp.o -o PascalCompilerLinux 
+/usr/bin/c++ -g CMakeFiles/PascalCompilerLinux.dir/main.cpp.o CMakeFiles/PascalCompilerLinux.dir/Emitter.cpp.o CMakeFiles/PascalCompilerLinux.dir/MyEmulator.cpp.o -o PascalCompilerLinux 

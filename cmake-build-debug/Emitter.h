@@ -4,6 +4,7 @@
 
 #ifndef PASCALCOMPILERLINUX_EMITTER_H
 #define PASCALCOMPILERLINUX_EMITTER_H
+
 //for linux syscall
 #include <cstdlib>
 //for opening file using linux syscall
@@ -28,9 +29,10 @@ private:
     char bf[15];
     size_t n;
     char filepath[100];
+    bool binary = 0;
 public:
-    Emitter();
-    explicit Emitter(std::string outputFilePath);
+    Emitter(bool binaryFlag);
+    explicit Emitter(std::string outputFilePath, bool binaryFlag);
     ~Emitter();
     void setFilepath(const std::string& outputFilePath);
     void createOutputFile();
@@ -41,6 +43,8 @@ public:
     void emit_real(int index, float poolOfReals[]);
     void stringToBuffer(std::string code);
     void printOpcodeError();
+    void writePcode(std::string opcode);
+    void writePcodeBinary(Opcodes opcode);
 };
 
 

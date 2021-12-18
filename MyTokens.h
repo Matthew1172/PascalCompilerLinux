@@ -13,6 +13,7 @@ enum Tokens : int
     TK_EOF = 0,
     TK_BEGIN = 2,
     TK_END = 3,
+    TK_DIVFL = 4,
     TK_PLUS = 40,
     TK_MINUS = 41,
     TK_MUL = 42,
@@ -77,6 +78,7 @@ map<std::string , Tokens>  initSymTable(){
     keywords["AND"] = TK_AND;
     keywords["OR"] = TK_OR;
     keywords["NOT"] = TK_NOT;
+    keywords["DIV"] = TK_DIVFL;
     return keywords;
 }
 
@@ -157,6 +159,9 @@ void printtoken(int curtoken, int curvalue, const string& curname, string poolOf
             break;
         case TK_DIV:
             cout << "token divide" << endl;
+            break;
+        case TK_DIVFL:
+            cout << "token floor divide" << endl;
             break;
         case TK_MOD:
             cout << "token modulus" << endl;

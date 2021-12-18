@@ -6,10 +6,14 @@
 using namespace std;
 
 
-Emitter::Emitter() {
+Emitter::Emitter(bool binaryFlag) {
+    if(binaryFlag != 1 && binaryFlag != 0) exit(-1);
+    this->binary = binaryFlag;
 }
 
-Emitter::Emitter(std::string outputFilePath) {
+Emitter::Emitter(std::string outputFilePath, bool binaryFlag) {
+    if(binaryFlag != 1 && binaryFlag != 0) exit(-1);
+    this->binary = binaryFlag;
     setFilepath(outputFilePath);
     createOutputFile();
 }
@@ -44,13 +48,13 @@ void Emitter::checkOutputFileAccess(){
             exit(2);
         }
     }else{
-        printf ("File: %s already exists!\n", filepath);
-        exit(-10);
+        //printf ("File: %s already exists!\n", filepath);
+        //exit(-10);
     }
 }
 
 void Emitter::createOutputFile() {
-    fd = open(filepath, O_WRONLY | O_CREAT, 0777);
+    fd = open(filepath, O_WRONLY | O_CREAT | O_TRUNC, 0777);
     if(fd == -1){
         printf("open() FROM EMITTER failed with error [%s]\n", strerror(errno));
         exit(2);
@@ -77,42 +81,130 @@ void Emitter::printOpcodeError() {
     exit(4);
 }
 
+void Emitter::writePcode(std::string opcode) {
+    stringToBuffer(opcode);
+    rv = write(fd, bf, n);
+    if(rv == -1) printOpcodeError();
+}
+
+void Emitter::writePcodeBinary(Opcodes opcode) {
+    char c[1];
+    c[0] = (char) opcode;
+    //c[1] = 'a';
+    //sprintf(c, "%c", opcode);
+    rv = write(fd, c, 1);
+    if(rv == -1) printOpcodeError();
+}
+
 void Emitter::emit_opcode(Opcodes op){
     switch(op){
         case OP_PUSHI:
-            stringToBuffer("PUSHI ");
-            rv = write(fd, bf, n);
-            if(rv == -1) printOpcodeError();
-            break;
-        case OP_ADD:
-            stringToBuffer("ADD\n");
-            rv = write(fd, bf, n);
-            if(rv == -1) printOpcodeError();
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_PUSHI);
+            }else{
+                //write human readible pcode
+                writePcode("PUSHI ");
+            }
             break;
         case OP_MUL:
-            stringToBuffer("MUL\n");
-            rv = write(fd, bf, n);
-            if(rv == -1) printOpcodeError();
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_MUL);
+            }else{
+                //write human readible pcode
+                writePcode("MUL\n");
+            }
             break;
-        case OP_XCHG:
-            stringToBuffer("XCHG\n");
-            rv = write(fd, bf, n);
-            if(rv == -1) printOpcodeError();
+        case OP_DIV:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_DIV);
+            }else{
+                //write human readible pcode
+                writePcode("DIV\n");
+            }
             break;
-        case OP_CVR:
-            stringToBuffer("CVR\n");
-            rv = write(fd, bf, n);
-            if(rv == -1) printOpcodeError();
+        case OP_ADD:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_ADD);
+            }else{
+                //write human readible pcode
+                writePcode("ADD\n");
+            }
+            break;
+        case OP_SUB:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_SUB);
+            }else{
+                //write human readible pcode
+                writePcode("SUB\n");
+            }
             break;
         case OP_FMUL:
-            stringToBuffer("FMUL\n");
-            rv = write(fd, bf, n);
-            if(rv == -1) printOpcodeError();
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_FMUL);
+            }else{
+                //write human readible pcode
+                writePcode("FMUL\n");
+            }
+            break;
+        case OP_FDIV:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_FDIV);
+            }else{
+                //write human readible pcode
+                writePcode("FDIV\n");
+            }
             break;
         case OP_FADD:
-            stringToBuffer("FADD\n");
-            rv = write(fd, bf, n);
-            if(rv == -1) printOpcodeError();
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_FADD);
+            }else{
+                //write human readible pcode
+                writePcode("FADD\n");
+            }
+            break;
+        case OP_FSUB:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_FSUB);
+            }else{
+                //write human readible pcode
+                writePcode("FSUB\n");
+            }
+            break;
+        case OP_XCHG:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_XCHG);
+            }else{
+                //write human readible pcode
+                writePcode("XCHG\n");
+            }
+            break;
+        case OP_CVR:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_CVR);
+            }else{
+                //write human readible pcode
+                writePcode("CVR\n");
+            }
+            break;
+        case OP_CVI:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_CVI);
+            }else{
+                //write human readible pcode
+                writePcode("CVI\n");
+            }
             break;
         default:
             break;
@@ -120,25 +212,49 @@ void Emitter::emit_opcode(Opcodes op){
 }
 
 void Emitter::emit_int(int value){
-    n = sprintf(bf, "%d\n", value);
-    if(n == -1){
-        exit(3);
-    }
-    rv = write(fd, bf, n);
-    if(rv == -1){
-        printf("write in emit int failed with error [%s]\n", strerror(errno));
-        exit(4);
+    if(this->binary){
+        //write binary int
+        int i[1];
+        i[0] = value;
+        rv = write(fd, i, 4);
+        if(rv == -1){
+            printf("write in emit int failed with error [%s]\n", strerror(errno));
+            exit(4);
+        }
+    }else{
+        //write human readible int
+        n = sprintf(bf, "%d\n", value);
+        if(n == -1){
+            exit(3);
+        }
+        rv = write(fd, bf, n);
+        if(rv == -1){
+            printf("write in emit int failed with error [%s]\n", strerror(errno));
+            exit(4);
+        }
     }
 }
 
 void Emitter::emit_real(int index, float poolOfReals[]){
-    n = sprintf(bf, "%f\n", poolOfReals[index]);
-    if(n == -1){
-        exit(3);
-    }
-    rv = write(fd, bf, n);
-    if(rv == -1){
-        printf("write in emit real failed with error [%s]\n", strerror(errno));
-        exit(4);
+    if(this->binary){
+        //write binary real
+        float i[1];
+        i[0] = poolOfReals[index];
+        rv = write(fd, i, 4);
+        if(rv == -1){
+            printf("write in emit real failed with error [%s]\n", strerror(errno));
+            exit(4);
+        }
+    }else{
+        //write human readible real
+        n = sprintf(bf, "%f\n", poolOfReals[index]);
+        if(n == -1){
+            exit(3);
+        }
+        rv = write(fd, bf, n);
+        if(rv == -1){
+            printf("write in emit real failed with error [%s]\n", strerror(errno));
+            exit(4);
+        }
     }
 }

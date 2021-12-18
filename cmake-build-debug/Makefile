@@ -153,6 +153,30 @@ Emitter.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/PascalCompilerLinux.dir/build.make CMakeFiles/PascalCompilerLinux.dir/Emitter.cpp.s
 .PHONY : Emitter.cpp.s
 
+MyEmulator.o: MyEmulator.cpp.o
+.PHONY : MyEmulator.o
+
+# target to build an object file
+MyEmulator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/PascalCompilerLinux.dir/build.make CMakeFiles/PascalCompilerLinux.dir/MyEmulator.cpp.o
+.PHONY : MyEmulator.cpp.o
+
+MyEmulator.i: MyEmulator.cpp.i
+.PHONY : MyEmulator.i
+
+# target to preprocess a source file
+MyEmulator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/PascalCompilerLinux.dir/build.make CMakeFiles/PascalCompilerLinux.dir/MyEmulator.cpp.i
+.PHONY : MyEmulator.cpp.i
+
+MyEmulator.s: MyEmulator.cpp.s
+.PHONY : MyEmulator.s
+
+# target to generate assembly for a file
+MyEmulator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/PascalCompilerLinux.dir/build.make CMakeFiles/PascalCompilerLinux.dir/MyEmulator.cpp.s
+.PHONY : MyEmulator.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -189,6 +213,9 @@ help:
 	@echo "... Emitter.o"
 	@echo "... Emitter.i"
 	@echo "... Emitter.s"
+	@echo "... MyEmulator.o"
+	@echo "... MyEmulator.i"
+	@echo "... MyEmulator.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

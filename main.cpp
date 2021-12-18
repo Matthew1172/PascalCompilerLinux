@@ -30,16 +30,18 @@
 #include "MyTypes.h"
 //pcode opcodes
 #include "MyOpcodes.h"
+//pcode machine
+#include "MyEmulator.h"
 
 using namespace std;
 
-string pcode = "PascalExpressionTest2_Output.pcode";
-Emitter *MyEmitter = new Emitter(pcode);
+string pcode = "PascalExpressionTest4_OutputBINARY.pcode";
+Emitter *MyEmitter = new Emitter(pcode, 1);
 
 //source program
 int fd;
 //source path
-char filepath[] = "PascalExpressionTest2.txt";
+char filepath[] = "PascalExpressionTest4.txt";
 //return value for syscalls
 int rv;
 
@@ -83,14 +85,10 @@ Types F();
 Types do_XOR(Types arg1, Types arg2);
 Types do_OR(Types arg1, Types arg2);
 Types do_SUB(Types arg1, Types arg2);
-
-//int+int=int
-//int+real=real
-//real+int=real
-//real+real=real
 Types do_ADD(Types arg1, Types arg2);
 Types do_MUL(Types arg1, Types arg2);
 Types do_DIV(Types arg1, Types arg2);
+Types do_DIVFL(Types arg1, Types arg2);
 Types do_AND(Types arg1, Types arg2);
 
 
@@ -124,6 +122,9 @@ int main() {
         exit(-555);
     }
     printf("close() source file successful! \n");
+
+    //Create an emulator from the pcode file we just created
+    MyEmulator* emulator = new MyEmulator(pcode);
 }
 
 void error() {
@@ -188,6 +189,7 @@ F ⇒ +F [NOP] | −F [NEG] | (E) | LIT [LIT]
 //G ⇒ E EOF
 void G() {
     E();
+    match(TK_END);
     match(TK_EOF);
 }
 
@@ -199,7 +201,8 @@ Types E() {
     t1=T();
     while(curtoken==TK_PLUS
     ||curtoken==TK_MINUS
-    ||curtoken==TK_OR) {
+    ||curtoken==TK_OR
+    ||curtoken==TK_XOR) {
         switch(curtoken) {
             case TK_PLUS:
                 match(TK_PLUS);
@@ -234,7 +237,10 @@ Types T(){
     Types t1; // type of 1st argument
     Types t2; // type of 2nd argument
     t1=F();
-    while(curtoken==TK_MUL||curtoken==TK_DIV) {
+    while(curtoken==TK_MUL
+    ||curtoken==TK_DIV
+    ||curtoken==TK_DIVFL
+    ||curtoken==TK_AND) {
         switch(curtoken) {
             case TK_MUL:
                 match(TK_MUL);
@@ -242,11 +248,16 @@ Types T(){
                 t1=do_MUL(t1,t2);
                 break;
             case TK_DIV:
-                //something special needs to go here..?
-                //integer or real division
+                //real division
                 match(TK_DIV);
                 t2=T();
                 t1=do_DIV(t1,t2);
+                break;
+            case TK_DIVFL:
+                //floor division
+                match(TK_DIVFL);
+                t2=T();
+                t1=do_DIVFL(t1,t2);
                 break;
             case TK_AND:
                 match(TK_AND);
@@ -265,7 +276,6 @@ Types F(){
     Types expT;
     switch (curtoken) {
         case TK_PLUS:
-            //MyEmitter->emit_opcode(OP_ADD);
             match(TK_PLUS);
             expT = F();
             break;
@@ -276,10 +286,9 @@ Types F(){
         case TK_NOT:
             //handle boolean and integer cases
             match(TK_NOT);
-            F();
+            expT = F();
             break;
         case TK_LP:
-            //no code to generate
             match(TK_LP);
             expT = E();
             match(TK_RP);
@@ -390,13 +399,20 @@ Types do_OR(Types arg1, Types arg2) {
 
 Types do_SUB(Types arg1, Types arg2) {
     if(arg1 == TP_INT && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_SUB);
         return TP_INT;
     }else if(arg1 == TP_INT && arg2 == TP_REAL){
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_CVR);
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_FSUB);
         return TP_REAL;
     }else if(arg1 == TP_REAL && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_CVR);
+        MyEmitter->emit_opcode(OP_FSUB);
         return TP_REAL;
     }else if(arg1 == TP_REAL && arg2 == TP_REAL){
-        //emit([OP_XCHG, OP_CVR, OP_XCHG, OP_FSUB])
+        MyEmitter->emit_opcode(OP_FSUB);
         return TP_REAL;
     }else{
         return TP_UNKNOWN;
@@ -451,8 +467,34 @@ Types do_MUL(Types arg1, Types arg2) {
 }
 
 Types do_DIV(Types arg1, Types arg2) {
-    //similar to add
-    return TP_INT;
+    MyEmitter->emit_opcode(OP_FDIV);
+    return TP_REAL;
+}
+
+Types do_DIVFL(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_DIV);
+        return TP_INT;
+    }else if(arg1 == TP_INT && arg2 == TP_REAL){
+        MyEmitter->emit_opcode(OP_CVI);
+        MyEmitter->emit_opcode(OP_DIV);
+        return TP_INT;
+    }else if(arg1 == TP_REAL && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_CVI);
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_DIV);
+        return TP_INT;
+    }else if(arg1 == TP_REAL && arg2 == TP_REAL){
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_CVI);
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_CVI);
+        MyEmitter->emit_opcode(OP_DIV);
+        return TP_INT;
+    }else{
+        return TP_UNKNOWN;
+    }
 }
 
 Types do_AND(Types arg1, Types arg2) {

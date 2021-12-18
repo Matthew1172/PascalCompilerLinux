@@ -6,8 +6,13 @@ CMakeFiles/PascalCompilerLinux.dir/Emitter.cpp.o
  /home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h
  /home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/Emitter.cpp
  /home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/Emitter.h
+CMakeFiles/PascalCompilerLinux.dir/MyEmulator.cpp.o
+ /home/matthew/CLionProjects/PascalCompilerLinux/MyEmulator.cpp
+ /home/matthew/CLionProjects/PascalCompilerLinux/MyEmulator.h
+ /home/matthew/CLionProjects/PascalCompilerLinux/MyOpcodes.h
 CMakeFiles/PascalCompilerLinux.dir/main.cpp.o
  /home/matthew/CLionProjects/PascalCompilerLinux/MyCatCodes.h
+ /home/matthew/CLionProjects/PascalCompilerLinux/MyEmulator.h
  /home/matthew/CLionProjects/PascalCompilerLinux/MyOpcodes.h
  /home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
  /home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h

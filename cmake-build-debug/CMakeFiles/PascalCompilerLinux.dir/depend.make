@@ -6,8 +6,13 @@ CMakeFiles/PascalCompilerLinux.dir/Emitter.cpp.o: \
  ../MyTypes.h \
  Emitter.cpp \
  Emitter.h
+CMakeFiles/PascalCompilerLinux.dir/MyEmulator.cpp.o: \
+ ../MyEmulator.cpp \
+ ../MyEmulator.h \
+ ../MyOpcodes.h
 CMakeFiles/PascalCompilerLinux.dir/main.cpp.o: \
  ../MyCatCodes.h \
+ ../MyEmulator.h \
  ../MyOpcodes.h \
  ../MyTokens.h \
  ../MyTypes.h \
