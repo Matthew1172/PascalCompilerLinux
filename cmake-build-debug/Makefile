@@ -129,6 +129,30 @@ PascalCompilerLinux/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/PascalCompilerLinux.dir/build.make CMakeFiles/PascalCompilerLinux.dir/build
 .PHONY : PascalCompilerLinux/fast
 
+Emitter.o: Emitter.cpp.o
+.PHONY : Emitter.o
+
+# target to build an object file
+Emitter.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/PascalCompilerLinux.dir/build.make CMakeFiles/PascalCompilerLinux.dir/Emitter.cpp.o
+.PHONY : Emitter.cpp.o
+
+Emitter.i: Emitter.cpp.i
+.PHONY : Emitter.i
+
+# target to preprocess a source file
+Emitter.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/PascalCompilerLinux.dir/build.make CMakeFiles/PascalCompilerLinux.dir/Emitter.cpp.i
+.PHONY : Emitter.cpp.i
+
+Emitter.s: Emitter.cpp.s
+.PHONY : Emitter.s
+
+# target to generate assembly for a file
+Emitter.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/PascalCompilerLinux.dir/build.make CMakeFiles/PascalCompilerLinux.dir/Emitter.cpp.s
+.PHONY : Emitter.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -162,6 +186,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... PascalCompilerLinux"
+	@echo "... Emitter.o"
+	@echo "... Emitter.i"
+	@echo "... Emitter.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

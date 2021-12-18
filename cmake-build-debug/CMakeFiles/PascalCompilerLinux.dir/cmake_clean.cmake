@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/PascalCompilerLinux.dir/Emitter.cpp.o"
   "CMakeFiles/PascalCompilerLinux.dir/main.cpp.o"
   "PascalCompilerLinux"
   "PascalCompilerLinux.pdb"

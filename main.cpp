@@ -18,12 +18,29 @@
 #include <cstring>
 //symbol table for keywords and identifiers
 #include <map>
-//
+//the emitter
+#include "cmake-build-debug/Emitter.h"
+//my pascal tokens
 #include "MyTokens.h"
+//categories for ascii characters
 #include "MyCatCodes.h"
+//data types for my pascal
 #include "MyTypes.h"
+//pcode opcodes
+#include "MyOpcodes.h"
 
 using namespace std;
+
+//Emitter *MyEmitter = new Emitter("PascalExpressionTest_Output.pcode");
+Emitter *MyEmitter = new Emitter();
+string pcode = "PascalExpressionTest_Output.pcode";
+
+//source program
+int fd;
+//source path
+char filepath[] = "PascalExpressionTest.txt";
+//return value for syscalls
+int rv;
 
 int curtoken;
 int curvalue;
@@ -59,6 +76,15 @@ Types E();
 Types T();
 Types F();
 
+Types do_XOR(Types arg1, Types arg2);
+Types do_OR(Types arg1, Types arg2);
+Types do_SUB(Types arg1, Types arg2);
+Types do_ADD(Types arg1, Types arg2);
+Types do_MUL(Types arg1, Types arg2);
+Types do_DIV(Types arg1, Types arg2);
+Types do_AND(Types arg1, Types arg2);
+
+
 /*
 E ⇒ E + T | E − T | T
 T ⇒ T ∗ F | T/F | F
@@ -83,14 +109,6 @@ T ⇒ FT'
 T' ⇒ ∗F [MUL] T | /T [DIV] F | eps
 F ⇒ +F [NOP] | −F [NEG] | (E) | LIT [LIT]
 */
-Types do_ADD(Types types, Types types1);
-
-Types do_SUB(Types types, Types types1);
-
-Types do_OR(Types types, Types types1);
-
-Types do_XOR(Types types, Types types1);
-
 //G ⇒ E EOF
 void G() {
     E();
@@ -99,38 +117,6 @@ void G() {
 
 //E ⇒ T E'
 //E' ⇒ +T [ADD] E' | −T [SUB] E' | eps
-
-/*
-void E() {
-    T();
-    while(curtoken==TK_PLUS||curtoken==TK_MINUS) {
-        switch(curtoken) {
-            case TK_PLUS:
-                match(TK_PLUS);
-                T();
-                //action(ADD);
-                break;
-            case TK_MINUS:
-                match(TK_MINUS);
-                T();
-                //action(SUB);
-                break;
-            case TK_OR:
-                match(TK_OR);
-                T();
-                //action(OR);
-                break;
-            case TK_XOR:
-                match(TK_XOR);
-                T();
-                //action(XOR);
-                break;
-            default:
-                break;
-        }
-    }
-}
-*/
 Types E() {
     Types t1; // type of 1st argument
     Types t2; // type of 2nd argument
@@ -158,7 +144,6 @@ Types E() {
                 match(TK_XOR);
                 t2=T();
                 t1=do_XOR(t1,t2);
-                //action(XOR);
                 break;
             default:
                 break;
@@ -182,6 +167,7 @@ Types T(){
                 break;
             case TK_DIV:
                 //something special needs to go here..?
+                //integer or real division
                 match(TK_DIV);
                 t2=T();
                 t1=do_DIV(t1,t2);
@@ -195,26 +181,41 @@ Types T(){
                 break;
         }
     }
+    return t1;
 }
 
 //F ⇒ +F [NOP] | −F [NEG] | not F [NOT] | (E) | LIT [LIT]
 Types F(){
     switch (curtoken) {
         case TK_PLUS:
+            //MyEmitter->emit_opcode(OP_ADD);
             match(TK_PLUS);
-            F();
-            break;
+            return F();
         case TK_MINUS:
             match(TK_MINUS);
             F();
             break;
-        case TK_RP:
-            match(TK_RP);
-            E();
+        case TK_NOT:
+            //handle boolean and integer cases
+            match(TK_NOT);
+            F();
+            break;
+        case TK_LP:
+            //no code to generate
             match(TK_LP);
+            E();
+            match(TK_RP);
             break;
         case TK_INTLIT:
+            //we know the type. TK_INTLIT, TK_REALINT, ...
+            //put it on the stack and define current type to be whatever the token tells us
+            MyEmitter->emit_opcode(OP_PUSHI);
+            MyEmitter->emit_int(curvalue);
             match(TK_INTLIT);
+            return TP_INT;
+        case TK_A_VAR:
+            break;
+        case TK_FUNC:
             break;
         default:
             break;
@@ -227,23 +228,40 @@ int main() {
     gettoken();
     compile();
 */
+    MyEmitter->setFilepath(pcode);
+    MyEmitter->createOutputFile();
+
+    //MyEmitter->emit_opcode(OP_PUSHI);
+    //MyEmitter->emit_int(66);
+
     initialize();
+    gettoken();
+    G();
+    /*
     do {
         gettoken();
         printtoken(curtoken, curvalue, curname, poolOfStrings);
     } while (curtoken != TK_EOF);
+     */
+
+    //close file
+    if(close(fd) != 0){
+        strerror(errno);
+        exit(-555);
+    }
+    printf("close() source file successful! \n");
 }
 
 void error() {
-    printf("\n\n\n Syntax error!"); exit(-1);
+    printf("\n\n\nSyntax error! line: %d", curline);
+    exit(-1);
 }
 
 void match(Tokens t){
     if(curtoken != t){
         error();
-        return;
     }
-    if(DEBUG) printf("%c",curtoken);
+    if(DEBUG) printtoken(curtoken, curvalue, curname, poolOfStrings);
     gettoken();
 }
 
@@ -541,15 +559,13 @@ void gettoken() {
 }
 
 void initialize() {
-    char filepath[] = "PascalTest2.txt";
-    int rv;
     rv = access(filepath, F_OK);
     if(rv != 0){
         if(errno == ENOENT) printf("%s does not exist. \n", filepath);
         else if(errno == EACCES) printf("%s is inaccessible. \n", filepath);
         exit(1);
     }
-    int fd = open(filepath, O_RDONLY);
+    fd = open(filepath, O_RDONLY);
     if(fd == -1){
         printf("open() failed with error [%s]\n", strerror(errno));
         exit(2);
@@ -571,4 +587,80 @@ void initialize() {
     keywords = initSymTable();
 
 }
+
+Types do_XOR(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT) {
+        return TP_INT;
+    }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
+        return TP_BOOL;
+    }else{
+        return TP_UNKNOWN;
+    }
+}
+
+Types do_OR(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT) {
+        return TP_INT;
+    }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
+        return TP_BOOL;
+    }else{
+        return TP_UNKNOWN;
+    }
+}
+
+Types do_SUB(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT){
+        return TP_INT;
+    }else if(arg1 == TP_INT && arg2 == TP_REAL){
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_INT){
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_REAL){
+        //emit([OP_XCHG, OP_CVR, OP_XCHG, OP_FSUB])
+        return TP_REAL;
+    }else{
+        return TP_UNKNOWN;
+    }
+}
+
+//int+int=int
+//int+real=real
+//real+int=real
+//real+real=real
+Types do_ADD(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_ADD);
+        return TP_INT;
+    }else if(arg1 == TP_INT && arg2 == TP_REAL){
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_INT){
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_REAL){
+        //emit([OP_XCHG, OP_CVR, OP_FADD])
+        return TP_REAL;
+    }else{
+        return TP_UNKNOWN;
+    }
+}
+
+Types do_MUL(Types arg1, Types arg2) {
+    //similar to add
+    return TP_INT;
+}
+
+Types do_DIV(Types arg1, Types arg2) {
+    //similar to add
+    return TP_INT;
+}
+
+Types do_AND(Types arg1, Types arg2) {
+    if(arg1 == TP_INT && arg2 == TP_INT) {
+        return TP_INT;
+    }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
+        return TP_BOOL;
+    }else{
+        return TP_UNKNOWN;
+    }
+}
+
 

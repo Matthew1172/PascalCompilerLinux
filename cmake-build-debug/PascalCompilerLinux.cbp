@@ -85,10 +85,19 @@
 		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/MyCatCodes.h">
 			<Option target="PascalCompilerLinux"/>
 		</Unit>
+		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/MyOpcodes.h">
+			<Option target="PascalCompilerLinux"/>
+		</Unit>
 		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h">
 			<Option target="PascalCompilerLinux"/>
 		</Unit>
 		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h">
+			<Option target="PascalCompilerLinux"/>
+		</Unit>
+		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/Emitter.cpp">
+			<Option target="PascalCompilerLinux"/>
+		</Unit>
+		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/Emitter.h">
 			<Option target="PascalCompilerLinux"/>
 		</Unit>
 		<Unit filename="/home/matthew/CLionProjects/PascalCompilerLinux/main.cpp">

@@ -81,12 +81,12 @@ clean: CMakeFiles/PascalCompilerLinux.dir/clean
 CMakeFiles/PascalCompilerLinux.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/PascalCompilerLinux.dir/build.make CMakeFiles/PascalCompilerLinux.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/PascalCompilerLinux.dir/build.make CMakeFiles/PascalCompilerLinux.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target PascalCompilerLinux"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/CMakeFiles --progress-num=1,2,3 "Built target PascalCompilerLinux"
 .PHONY : CMakeFiles/PascalCompilerLinux.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/PascalCompilerLinux.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/CMakeFiles 3
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/PascalCompilerLinux.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/PascalCompilerLinux.dir/rule

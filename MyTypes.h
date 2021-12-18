@@ -19,42 +19,8 @@ enum Types : int
     TP_PROC = 10,
     TP_FUNC = 11,
     TP_FILE = 12,
-    TP_CLASS = 13
+    TP_CLASS = 13,
+    TP_UNKNOWN = 14
 };
-Types do_XOR(Types types, Types types1);
-Types do_OR(Types types, Types types1);
-Types do_SUB(Types types, Types types1);
-Types do_ADD(Types types, Types types1);
-Types do_MUL(Types types, Types types1);
-Types do_DIV(Types types, Types types1);
-Types do_AND(Types types, Types types1);
-
-Types do_XOR(Types types, Types types1) {
-    return TP_INT;
-}
-
-Types do_OR(Types types, Types types1) {
-    return TP_INT;
-}
-
-Types do_SUB(Types types, Types types1) {
-    return TP_INT;
-}
-
-Types do_ADD(Types types, Types types1) {
-    return TP_INT;
-}
-
-Types do_MUL(Types types, Types types1) {
-    return TP_INT;
-}
-
-Types do_DIV(Types types, Types types1) {
-    return TP_INT;
-}
-
-Types do_AND(Types types, Types types1) {
-    return TP_INT;
-}
 
 #endif //PASCALCOMPILERLINUX_MYTYPES_H

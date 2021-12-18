@@ -40,7 +40,6 @@ enum Tokens : int
     TK_REALLIT = 102,
     TK_STRINGLIT = 103,
     TK_DOT = 104,
-    OP_HALT = 105,
     TK_LABEL = 106,
     TK_VAR = 107,
     TK_CONST = 108,
@@ -57,6 +56,7 @@ enum Tokens : int
     TK_RP = 121,
     TK_LP = 122,
     TK_THEN = 123,
+    TK_FUNC = 124,
     TK_UNKNOWN = 200
 };
 
