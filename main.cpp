@@ -18,6 +18,8 @@
 #include <cstring>
 //symbol table for keywords and identifiers
 #include <map>
+//need pow for real lit
+#include <cmath>
 //the emitter
 #include "cmake-build-debug/Emitter.h"
 //my pascal tokens
@@ -31,14 +33,13 @@
 
 using namespace std;
 
-//Emitter *MyEmitter = new Emitter("PascalExpressionTest_Output.pcode");
-Emitter *MyEmitter = new Emitter();
-string pcode = "PascalExpressionTest_Output.pcode";
+string pcode = "PascalExpressionTest2_Output.pcode";
+Emitter *MyEmitter = new Emitter(pcode);
 
 //source program
 int fd;
 //source path
-char filepath[] = "PascalExpressionTest.txt";
+char filepath[] = "PascalExpressionTest2.txt";
 //return value for syscalls
 int rv;
 
@@ -55,6 +56,9 @@ int col;
 const short MAXSTRINGS = 100;
 string poolOfStrings[MAXSTRINGS];
 int stringIndex = 0;
+const short MAXREALS = 100;
+float poolOfReals[MAXREALS];
+int realIndex = 0;
 std::map<std::string , Tokens> keywords;
 
 void initialize();
@@ -110,26 +114,9 @@ Types do_AND(Types arg1, Types arg2);
 
 
 int main() {
-/*
-    initialize();
-    gettoken();
-    compile();
-*/
-    MyEmitter->setFilepath(pcode);
-    MyEmitter->createOutputFile();
-
-    //MyEmitter->emit_opcode(OP_PUSHI);
-    //MyEmitter->emit_int(66);
-
     initialize();
     gettoken();
     G();
-    /*
-    do {
-        gettoken();
-        printtoken(curtoken, curvalue, curname, poolOfStrings);
-    } while (curtoken != TK_EOF);
-     */
 
     //close file
     if(close(fd) != 0){
@@ -275,14 +262,16 @@ Types T(){
 
 //F ⇒ +F [NOP] | −F [NEG] | not F [NOT] | (E) | LIT [LIT]
 Types F(){
+    Types expT;
     switch (curtoken) {
         case TK_PLUS:
             //MyEmitter->emit_opcode(OP_ADD);
             match(TK_PLUS);
-            return F();
+            expT = F();
+            break;
         case TK_MINUS:
             match(TK_MINUS);
-            F();
+            expT = F();
             break;
         case TK_NOT:
             //handle boolean and integer cases
@@ -292,7 +281,7 @@ Types F(){
         case TK_LP:
             //no code to generate
             match(TK_LP);
-            E();
+            expT = E();
             match(TK_RP);
             break;
         case TK_INTLIT:
@@ -301,7 +290,14 @@ Types F(){
             MyEmitter->emit_opcode(OP_PUSHI);
             MyEmitter->emit_int(curvalue);
             match(TK_INTLIT);
-            return TP_INT;
+            expT = TP_INT;
+            break;
+        case TK_REALLIT:
+            MyEmitter->emit_opcode(OP_PUSHI);
+            MyEmitter->emit_real(curvalue, poolOfReals);
+            match(TK_REALLIT);
+            expT = TP_REAL;
+            break;
         case TK_A_VAR:
             break;
         case TK_FUNC:
@@ -309,13 +305,14 @@ Types F(){
         default:
             break;
     }
+    return expT;
 }
 
 void match(Tokens t){
     if(curtoken != t){
         error();
     }
-    if(DEBUG) printtoken(curtoken, curvalue, curname, poolOfStrings);
+    if(DEBUG) printtoken(curtoken, curvalue, curname, poolOfStrings, poolOfReals);
     gettoken();
 }
 
@@ -370,7 +367,6 @@ void label_declaration(){
 void const_declaration(){
 
 }
-
 
 Types do_XOR(Types arg1, Types arg2) {
     if(arg1 == TP_INT && arg2 == TP_INT) {
@@ -509,8 +505,10 @@ Types do_AND(Types arg1, Types arg2) {
 void gettoken() {
     char c;
     int i1;
+    int i2;
 
     int value;
+    float realvalue;
     int base;
 
     string curstring;
@@ -671,7 +669,7 @@ void gettoken() {
             //scan ahead, and use whatever can be part of the number. Collect all digits and look for special cases like .
             //which would mean real. like letter 'e' which means real also, and perhaps something else like # to denote numbers in different bases.
             //collect number together, determine what constant you got, and return that constant.
-
+            i1 = 0;
             value=0;
             base=10;
             while (c>='0'&&c<='9') {
@@ -680,10 +678,47 @@ void gettoken() {
             }
             switch(c){
                 case '.':
+                    switch(catcode[c=*scanp++]){
+                        case 'D':
+                            //digit, so no syntax error
+                            break;
+                        default:
+                            //next character is not a digit. SYNTAX ERROR
+                            error();
+                    }
+                    i2 = 1;
+                    realvalue = 0;
+                    while (c>='0'&&c<='9') {
+                        i1 = c - '0';
+                        realvalue += i1*pow(10, -i2);
+                        i2++;
+                        c = *scanp++;
+                    }
+                    poolOfReals[realIndex] = value + realvalue;
+                    curvalue = realIndex;
+                    realIndex++;
+                    curtoken = TK_REALLIT;
+                    break;
+                case 'e':
                 case 'E':
                     //reallit
-                    //keep scanning numbers. this time incrementally change base by 10^i where i=1,2,3,...,n
-
+                    switch(catcode[c=*scanp++]){
+                        case 'D':
+                            //digit, so no syntax error
+                            break;
+                        default:
+                            //next character is not a digit. SYNTAX ERROR
+                            error();
+                    }
+                    //keep scanning numbers saving into i1. When we see something that's not a number we stop scanning, rollback scanner
+                    //then multiply value by 10^i1 and then multiply that by curvalue and save it in curvalue
+                    while (c>='0'&&c<='9') {
+                        i1 = i1 * base + c - '0';
+                        c = *scanp++;
+                    }
+                    poolOfReals[realIndex] = value * pow(10, i1);
+                    curvalue = realIndex;
+                    realIndex++;
                     curtoken = TK_REALLIT;
                     break;
                 default:

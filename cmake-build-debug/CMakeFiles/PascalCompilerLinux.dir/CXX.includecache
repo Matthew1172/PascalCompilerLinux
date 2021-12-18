@@ -6,7 +6,13 @@
 
 #IncludeRegexTransform: 
 
+/home/matthew/CLionProjects/PascalCompilerLinux/MyCatCodes.h
+
 /home/matthew/CLionProjects/PascalCompilerLinux/MyOpcodes.h
+
+/home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
+map
+-
 
 /home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h
 
@@ -31,4 +37,36 @@ cstring
 /home/matthew/CLionProjects/PascalCompilerLinux/MyOpcodes.h
 ../MyTypes.h
 /home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h
+
+/home/matthew/CLionProjects/PascalCompilerLinux/main.cpp
+algorithm
+-
+iostream
+-
+cstdlib
+-
+fcntl.h
+-
+unistd.h
+-
+cerrno
+-
+sys/stat.h
+-
+cstring
+-
+map
+-
+cmath
+-
+cmake-build-debug/Emitter.h
+/home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/Emitter.h
+MyTokens.h
+/home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
+MyCatCodes.h
+/home/matthew/CLionProjects/PascalCompilerLinux/MyCatCodes.h
+MyTypes.h
+/home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h
+MyOpcodes.h
+/home/matthew/CLionProjects/PascalCompilerLinux/MyOpcodes.h
 

@@ -80,7 +80,7 @@ map<std::string , Tokens>  initSymTable(){
     return keywords;
 }
 
-void printtoken(int curtoken, int curvalue, const string& curname, string poolOfStrings[]) {
+void printtoken(int curtoken, int curvalue, const string& curname, string poolOfStrings[], float poolOfReals[]) {
     switch (curtoken) {
         case TK_INTLIT:
             //printf("int lit %d \n", curvalue);
@@ -88,7 +88,7 @@ void printtoken(int curtoken, int curvalue, const string& curname, string poolOf
             break;
         case TK_REALLIT:
             //printf("real lit %f \n", (float)curvalue);
-            cout << "Real lit " << curvalue << endl;
+            cout << "Real lit at "<< curvalue << ": " << poolOfReals[curvalue] << endl;
             break;
         case TK_CHARLIT:
             //printf("char lit %c \n", (char)curvalue);
