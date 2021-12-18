@@ -26,27 +26,64 @@ void MyEmulator::readPcodeFile() {
 }
 
 void MyEmulator::closePcodeFile() {
-
+    //close file
+    if(close(fd) != 0){
+        strerror(errno);
+        exit(-555);
+    }
+    printf("close() FROM EMULATOR successful! \n");
 }
 
 void MyEmulator::emulate() {
     IP = 0;
     flags = 0x00000000;
+    int temp;
+    float ftemp;
+    float ftemp2;
+    int itemp;
     while (1) {
         switch (opcode = CODE[IP++]) {
-            case OP_HALT:
-                exit(0);
             case OP_PUSH:
-                int temp;
                 temp=*(int *)(CODE+IP); IP+=sizeof(int); // address
                 temp=*(int *)(DATA+temp);
                 // value of the variable;
                 *(int *)(STACK+SP)=temp; SP+=sizeof(int); // push
+            case OP_HALT:
+                exit(0);
+            case OP_PUSHI:
+                //immediate integer
+                itemp = *(int*)(CODE+IP);
+                IP+=sizeof(int);
+                *(int *)(STACK+SP)=itemp; SP+=sizeof(int); // push
+                break;
+            case OP_FPUSHI:
+                //immediate real (float)
+                ftemp = *(float*)(CODE+IP);
+                IP+=sizeof(float);
+                *(float *)(STACK+SP)=ftemp;
+                SP+=sizeof(float); // push
+                break;
+            case OP_ADD:
+                break;
+            case OP_FADD:
+                SP -= sizeof(float);
+                ftemp = *(float*)(STACK+SP);
+                SP -= sizeof(float);
+                ftemp2 = *(float*)(STACK+SP);
+                cout << ftemp + ftemp2 << endl;
+                break;
             default:
                 //error
                 break;
         }
-        //dumpRegisters();
+        //doesn't really work
+        //printStack();
+    }
+}
+
+void MyEmulator::printStack() {
+    for(byte b = 0x00; b < SP; b+=0x01){
+        cout << *(STACK+b) << endl;
     }
 }
 
@@ -69,3 +106,8 @@ void MyEmulator::setFilepath(string fp) {
         //check access
         //checkOutputFileAccess();
 }
+
+MyEmulator::~MyEmulator() {
+    closePcodeFile();
+}
+

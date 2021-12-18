@@ -211,6 +211,9 @@ void printtoken(int curtoken, int curvalue, const string& curname, string poolOf
         case TK_THEN:
             cout << "token then" << endl;
             break;
+        case TK_DOT:
+            cout << "DOT token" << endl;
+            break;
         default:
             cout << "Unknown token: " << curname << endl;
             break;

@@ -39,16 +39,18 @@ private:
 
     byte opcode = 0x00;
     byte* CODE;
-    byte* STACK;
+    byte STACK[100];
     byte* DATA;
 
 public:
     MyEmulator();
+    ~MyEmulator();
     explicit MyEmulator(string fp);
     void setFilepath(string fp);
     void readPcodeFile();
     void closePcodeFile();
     void emulate();
+    void printStack();
 
 };
 

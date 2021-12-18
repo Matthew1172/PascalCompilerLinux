@@ -65,12 +65,12 @@ std::map<std::string , Tokens> keywords;
 
 void initialize();
 void gettoken();
+
 void compile();
 void header();
 void declarations();
 void begin_statement();
-void match(Tokens t);
-void emit_opcode(Tokens t);
+
 void label_declaration();
 void var_declaration();
 void const_declaration();
@@ -90,6 +90,7 @@ Types do_MUL(Types arg1, Types arg2);
 Types do_DIV(Types arg1, Types arg2);
 Types do_DIVFL(Types arg1, Types arg2);
 Types do_AND(Types arg1, Types arg2);
+void match(Tokens t);
 
 
 
@@ -115,6 +116,7 @@ int main() {
     initialize();
     gettoken();
     G();
+    //compile();
 
     //close file
     if(close(fd) != 0){
@@ -125,6 +127,7 @@ int main() {
 
     //Create an emulator from the pcode file we just created
     MyEmulator* emulator = new MyEmulator(pcode);
+    emulator->emulate();
 }
 
 void error() {
@@ -159,7 +162,65 @@ void error() {
 
 
 
+void compile(){
+    header();
+    declarations();
+    begin_statement();
+    match(TK_DOT);
+    MyEmitter->emit_opcode(OP_HALT);
+}
 
+void header(){
+    return;
+}
+
+void declarations(){
+    restart:
+    switch(curtoken){
+        case TK_LABEL:
+            label_declaration(); goto restart;
+        case TK_VAR:
+            var_declaration(); goto restart;
+        case TK_CONST:
+            const_declaration(); goto restart;
+        default:
+            return;
+    }
+}
+
+void var_declaration(){
+    match(TK_VAR);
+    restart:
+    if(curtoken!=TK_UNKNOWN){
+        //error();
+        return;
+    }
+    //auto* v = new std::vector<char*>;
+    //v->push_back(curname);
+
+    varList();
+
+    if(DEBUG) printf("We have an unknown token");
+
+    if(curtoken == TK_UNKNOWN) goto restart;
+}
+
+void varList(){
+    match(TK_UNKNOWN);
+
+}
+
+void label_declaration(){
+
+}
+
+void const_declaration(){
+
+}
+
+void begin_statement(){
+    return;
+}
 
 
 /*
@@ -190,7 +251,9 @@ F ⇒ +F [NOP] | −F [NEG] | (E) | LIT [LIT]
 void G() {
     E();
     match(TK_END);
+    match(TK_DOT);
     match(TK_EOF);
+    MyEmitter->emit_opcode(OP_HALT);
 }
 
 //E ⇒ T E'
@@ -302,7 +365,7 @@ Types F(){
             expT = TP_INT;
             break;
         case TK_REALLIT:
-            MyEmitter->emit_opcode(OP_PUSHI);
+            MyEmitter->emit_opcode(OP_FPUSHI);
             MyEmitter->emit_real(curvalue, poolOfReals);
             match(TK_REALLIT);
             expT = TP_REAL;
@@ -317,73 +380,14 @@ Types F(){
     return expT;
 }
 
-void match(Tokens t){
-    if(curtoken != t){
-        error();
-    }
-    if(DEBUG) printtoken(curtoken, curvalue, curname, poolOfStrings, poolOfReals);
-    gettoken();
-}
-
-void compile(){
-    //header();
-    declarations();
-    //begin_statement();
-    //match(TK_DOT);
-    //emit_opcode(OP_HALT);
-}
-
-void declarations(){
-    restart:
-    switch(curtoken){
-        case TK_LABEL:
-            label_declaration(); goto restart;
-        case TK_VAR:
-            var_declaration(); goto restart;
-        case TK_CONST:
-            const_declaration(); goto restart;
-        default:
-            return;
-    }
-}
-
-void var_declaration(){
-    match(TK_VAR);
-    restart:
-    if(curtoken!=TK_UNKNOWN){
-        //error();
-        return;
-    }
-    //auto* v = new std::vector<char*>;
-    //v->push_back(curname);
-
-    varList();
-
-    if(DEBUG) printf("We have an unknown token");
-
-    if(curtoken == TK_UNKNOWN) goto restart;
-}
-
-void varList(){
-    match(TK_UNKNOWN);
-
-}
-
-void label_declaration(){
-
-}
-
-void const_declaration(){
-
-}
-
 Types do_XOR(Types arg1, Types arg2) {
     if(arg1 == TP_INT && arg2 == TP_INT) {
         return TP_INT;
     }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
         return TP_BOOL;
     }else{
-        return TP_UNKNOWN;
+        error();
+        exit(-555);
     }
 }
 
@@ -393,7 +397,8 @@ Types do_OR(Types arg1, Types arg2) {
     }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
         return TP_BOOL;
     }else{
-        return TP_UNKNOWN;
+        error();
+        exit(-555);
     }
 }
 
@@ -415,14 +420,11 @@ Types do_SUB(Types arg1, Types arg2) {
         MyEmitter->emit_opcode(OP_FSUB);
         return TP_REAL;
     }else{
-        return TP_UNKNOWN;
+        error();
+        exit(-555);
     }
 }
 
-//int+int=int
-//int+real=real
-//real+int=real
-//real+real=real
 Types do_ADD(Types arg1, Types arg2) {
     if(arg1 == TP_INT && arg2 == TP_INT){
         MyEmitter->emit_opcode(OP_ADD);
@@ -440,7 +442,8 @@ Types do_ADD(Types arg1, Types arg2) {
         MyEmitter->emit_opcode(OP_FADD);
         return TP_REAL;
     }else{
-        return TP_UNKNOWN;
+        error();
+        exit(-555);
     }
 }
 
@@ -462,38 +465,45 @@ Types do_MUL(Types arg1, Types arg2) {
         MyEmitter->emit_opcode(OP_FMUL);
         return TP_REAL;
     }else{
-        return TP_UNKNOWN;
+        error();
+        exit(-555);
     }
 }
 
 Types do_DIV(Types arg1, Types arg2) {
-    MyEmitter->emit_opcode(OP_FDIV);
-    return TP_REAL;
+    if(arg1 == TP_INT && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_CVR);
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_CVR);
+        MyEmitter->emit_opcode(OP_FDIV);
+        return TP_REAL;
+    }else if(arg1 == TP_INT && arg2 == TP_REAL){
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_CVR);
+        MyEmitter->emit_opcode(OP_XCHG);
+        MyEmitter->emit_opcode(OP_FDIV);
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_CVR);
+        MyEmitter->emit_opcode(OP_FDIV);
+        return TP_REAL;
+    }else if(arg1 == TP_REAL && arg2 == TP_REAL){
+        MyEmitter->emit_opcode(OP_FDIV);
+        return TP_REAL;
+    }else{
+        error();
+        exit(-555);
+    }
 }
 
 Types do_DIVFL(Types arg1, Types arg2) {
     if(arg1 == TP_INT && arg2 == TP_INT){
         MyEmitter->emit_opcode(OP_DIV);
         return TP_INT;
-    }else if(arg1 == TP_INT && arg2 == TP_REAL){
-        MyEmitter->emit_opcode(OP_CVI);
-        MyEmitter->emit_opcode(OP_DIV);
-        return TP_INT;
-    }else if(arg1 == TP_REAL && arg2 == TP_INT){
-        MyEmitter->emit_opcode(OP_XCHG);
-        MyEmitter->emit_opcode(OP_CVI);
-        MyEmitter->emit_opcode(OP_XCHG);
-        MyEmitter->emit_opcode(OP_DIV);
-        return TP_INT;
-    }else if(arg1 == TP_REAL && arg2 == TP_REAL){
-        MyEmitter->emit_opcode(OP_XCHG);
-        MyEmitter->emit_opcode(OP_CVI);
-        MyEmitter->emit_opcode(OP_XCHG);
-        MyEmitter->emit_opcode(OP_CVI);
-        MyEmitter->emit_opcode(OP_DIV);
-        return TP_INT;
     }else{
-        return TP_UNKNOWN;
+        error();
+        exit(-555);
     }
 }
 
@@ -503,11 +513,18 @@ Types do_AND(Types arg1, Types arg2) {
     }else if(arg1 == TP_BOOL && arg2 == TP_BOOL){
         return TP_BOOL;
     }else{
-        return TP_UNKNOWN;
+        error();
+        exit(-555);
     }
 }
 
-
+void match(Tokens t){
+    if(curtoken != t){
+        error();
+    }
+    if(DEBUG) printtoken(curtoken, curvalue, curname, poolOfStrings, poolOfReals);
+    gettoken();
+}
 
 
 
@@ -630,6 +647,9 @@ void gettoken() {
                 case '~':
                     //binary NOT
                     curtoken = TK_BNOT;
+                    break;
+                case '.':
+                    curtoken = TK_DOT;
                     break;
                 default:
                     //we don't know what this is. Shouldn't get here.

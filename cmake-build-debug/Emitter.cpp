@@ -98,6 +98,15 @@ void Emitter::writePcodeBinary(Opcodes opcode) {
 
 void Emitter::emit_opcode(Opcodes op){
     switch(op){
+        case OP_HALT:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_HALT);
+            }else{
+                //write human readible pcode
+                writePcode("HALT\n");
+            }
+            break;
         case OP_PUSHI:
             if(this->binary){
                 //write binary pcode
@@ -105,6 +114,15 @@ void Emitter::emit_opcode(Opcodes op){
             }else{
                 //write human readible pcode
                 writePcode("PUSHI ");
+            }
+            break;
+        case OP_FPUSHI:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_FPUSHI);
+            }else{
+                //write human readible pcode
+                writePcode("FPUSHI ");
             }
             break;
         case OP_MUL:
