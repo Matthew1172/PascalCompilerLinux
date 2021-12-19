@@ -41,6 +41,7 @@ void MyEmulator::emulate() {
     float ftemp;
     float ftemp2;
     int itemp;
+    int itemp2;
     while (1) {
         switch (opcode = CODE[IP++]) {
             case OP_PUSH:
@@ -64,6 +65,11 @@ void MyEmulator::emulate() {
                 SP+=sizeof(float); // push
                 break;
             case OP_ADD:
+                SP -= sizeof(int);
+                itemp = *(int*)(STACK+SP);
+                SP -= sizeof(int);
+                itemp2 = *(int*)(STACK+SP);
+                cout << itemp + itemp2 << endl;
                 break;
             case OP_FADD:
                 SP -= sizeof(float);

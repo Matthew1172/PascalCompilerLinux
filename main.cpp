@@ -115,7 +115,7 @@ void match(Tokens t);
 int main(int argc, char** argv) {
     if(argc < 3){
         cout << "Directions for use: " << endl;
-        cout << "$ ./a.out <input file> <output file>" << endl;
+        cout << "$ ./PascalCompilerLinux <input file> <output file>" << endl;
         exit(1);
     }
     pascal = argv[1];

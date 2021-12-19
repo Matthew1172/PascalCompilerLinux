@@ -6,15 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/home/matthew/CLionProjects/PascalCompilerLinux/MyOpcodes.h
+/home/matthew/CLionProjects/PascalCompilerLinux/MyEmulator.cpp
+MyEmulator.h
+/home/matthew/CLionProjects/PascalCompilerLinux/MyEmulator.h
 
-/home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h
-
-/home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/Emitter.cpp
-Emitter.h
-/home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/Emitter.h
-
-/home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/Emitter.h
+/home/matthew/CLionProjects/PascalCompilerLinux/MyEmulator.h
 cstdlib
 -
 fcntl.h
@@ -27,8 +23,10 @@ iostream
 -
 cstring
 -
-../MyOpcodes.h
+sys/stat.h
+-
+MyOpcodes.h
 /home/matthew/CLionProjects/PascalCompilerLinux/MyOpcodes.h
-../MyTypes.h
-/home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h
+
+/home/matthew/CLionProjects/PascalCompilerLinux/MyOpcodes.h
 
