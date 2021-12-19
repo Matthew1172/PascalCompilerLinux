@@ -97,7 +97,7 @@ MyEmulator::MyEmulator(string fp) {
 }
 
 void MyEmulator::setFilepath(string fp) {
-        if(fp.length() > 100){
+        if(fp.length() > MAXFILEPATH){
             //filename too large
             exit(-5);
         }

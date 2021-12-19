@@ -35,15 +35,15 @@
 
 using namespace std;
 
-string pcode = "PascalExpressionTest4_OutputBINARY.pcode";
-Emitter *MyEmitter = new Emitter(pcode, 1);
+string pascal = "";
+string pcode = "";
+//Emitter *MyEmitter = new Emitter(pcode, 1);
+Emitter *MyEmitter = new Emitter(1);
+
+const long MAXFILEPATH = 500;
 
 //source program
 int fd;
-//source path
-char filepath[] = "PascalExpressionTest4.txt";
-//return value for syscalls
-int rv;
 
 int curtoken;
 int curvalue;
@@ -112,7 +112,16 @@ void match(Tokens t);
 
 
 
-int main() {
+int main(int argc, char** argv) {
+    if(argc < 3){
+        cout << "Directions for use: " << endl;
+        cout << "$ ./a.out <input file> <output file>" << endl;
+        exit(1);
+    }
+    pascal = argv[1];
+    pcode = argv[2];
+    MyEmitter->setFilepath(pcode);
+
     initialize();
     gettoken();
     G();
@@ -847,6 +856,18 @@ void gettoken() {
 }
 
 void initialize() {
+    //source path
+    char filepath[MAXFILEPATH] = "";
+    //return value for syscalls
+    int rv;
+
+    if(pascal.length() > MAXFILEPATH){
+        //filename too large
+        exit(-5);
+    }
+    //initialize filepath from string
+    strcpy(filepath, pascal.c_str());
+
     rv = access(filepath, F_OK);
     if(rv != 0){
         if(errno == ENOENT) printf("%s does not exist. \n", filepath);

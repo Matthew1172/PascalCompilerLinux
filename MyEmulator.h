@@ -26,7 +26,9 @@ using namespace std;
 
 class MyEmulator {
 private:
-    char fp[100];
+
+    static const long MAXFILEPATH = 500;
+    char fp[MAXFILEPATH];
     int fd;
     ssize_t rv;
     unsigned long MAXCODE;

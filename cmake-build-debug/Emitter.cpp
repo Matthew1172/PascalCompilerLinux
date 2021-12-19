@@ -23,13 +23,13 @@ Emitter::~Emitter() {
 }
 
 void Emitter::setFilepath(const std::string& outputFilePath) {
-    if(outputFilePath.length() > 100){
+    if(outputFilePath.length() > MAXFILEPATH){
         //filename too large
         exit(-5);
     }
     //initialize filepath from string
     strcpy(filepath, outputFilePath.c_str());
-    //check access
+    createOutputFile();
     checkOutputFileAccess();
 }
 
@@ -47,9 +47,8 @@ void Emitter::checkOutputFileAccess(){
             printf("%s is not writable (read-only filesystem)\n", filepath);
             exit(2);
         }
-    }else{
-        //printf ("File: %s already exists!\n", filepath);
-        //exit(-10);
+        printf("ACCESS() FROM EMITTER failed with error [%s]\n", strerror(errno));
+        exit(2);
     }
 }
 

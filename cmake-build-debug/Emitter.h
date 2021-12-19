@@ -24,11 +24,12 @@
 
 class Emitter {
 private:
+    static const long MAXFILEPATH = 500;
     int fd;
     ssize_t rv;
     char bf[15];
     size_t n;
-    char filepath[100];
+    char filepath[MAXFILEPATH];
     bool binary = 0;
 public:
     Emitter(bool binaryFlag);
