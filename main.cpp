@@ -89,6 +89,7 @@ Types do_ADD(Types arg1, Types arg2);
 Types do_MUL(Types arg1, Types arg2);
 Types do_DIV(Types arg1, Types arg2);
 Types do_DIVFL(Types arg1, Types arg2);
+Types do_MOD(Types arg1, Types arg2);
 Types do_AND(Types arg1, Types arg2);
 void match(Tokens t);
 
@@ -470,7 +471,6 @@ Types do_MUL(Types arg1, Types arg2) {
         MyEmitter->emit_opcode(OP_FMUL);
         return TP_REAL;
     }else if(arg1 == TP_REAL && arg2 == TP_REAL){
-        //emit([OP_XCHG, OP_CVR, OP_FADD])
         MyEmitter->emit_opcode(OP_FMUL);
         return TP_REAL;
     }else{

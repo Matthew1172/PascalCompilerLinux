@@ -18,6 +18,8 @@
 #include <cstring>
 //to get file size using linux syscall
 #include <sys/stat.h>
+//for floor
+#include <cmath>
 //for OPCODES
 #include "MyOpcodes.h"
 

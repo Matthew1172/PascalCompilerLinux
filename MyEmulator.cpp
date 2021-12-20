@@ -1,8 +1,9 @@
 //
 // Created by matthew on 12/18/21.
 //
-
 #include "MyEmulator.h"
+using namespace std;
+
 
 void MyEmulator::readPcodeFile() {
     rv = access(fp, F_OK);
@@ -64,19 +65,83 @@ void MyEmulator::emulate() {
                 *(float *)(STACK+SP)=ftemp;
                 SP+=sizeof(float); // push
                 break;
+            case OP_XCHG:
+                //single real and int are same #of bytes,
+                //we will always exchange size of int
+                SP -= sizeof(int);
+                itemp = *(int*)(STACK+SP);
+                SP -= sizeof(int);
+                itemp2 = *(int*)(STACK+SP);
+                *(int *)(STACK+SP)=itemp; SP+=sizeof(int); // push
+                *(int *)(STACK+SP)=itemp2; SP+=sizeof(int); // push
+                break;
+            case OP_CVI:
+                SP -= sizeof(float);
+                ftemp = *(float*)(STACK+SP);
+                itemp = (int)floorf(ftemp);
+                *(int *)(STACK+SP)=itemp; SP+=sizeof(int); // push
+                break;
+            case OP_CVR:
+                SP -= sizeof(int);
+                itemp = *(int*)(STACK+SP);
+                ftemp = (float)itemp;
+                *(float *)(STACK+SP)=ftemp; SP+=sizeof(float); // push
+                break;
             case OP_ADD:
                 SP -= sizeof(int);
                 itemp = *(int*)(STACK+SP);
                 SP -= sizeof(int);
                 itemp2 = *(int*)(STACK+SP);
-                cout << itemp + itemp2 << endl;
+                cout << itemp2 + itemp << endl;
+                break;
+            case OP_SUB:
+                SP -= sizeof(int);
+                itemp = *(int*)(STACK+SP);
+                SP -= sizeof(int);
+                itemp2 = *(int*)(STACK+SP);
+                cout << itemp2 - itemp << endl;
+                break;
+            case OP_MUL:
+                SP -= sizeof(int);
+                itemp = *(int*)(STACK+SP);
+                SP -= sizeof(int);
+                itemp2 = *(int*)(STACK+SP);
+                cout << itemp2 * itemp << endl;
+                break;
+            case OP_DIV:
+                SP -= sizeof(int);
+                itemp = *(int*)(STACK+SP);
+                SP -= sizeof(int);
+                itemp2 = *(int*)(STACK+SP);
+                cout << itemp2 / itemp << endl;
                 break;
             case OP_FADD:
                 SP -= sizeof(float);
                 ftemp = *(float*)(STACK+SP);
                 SP -= sizeof(float);
                 ftemp2 = *(float*)(STACK+SP);
-                cout << ftemp + ftemp2 << endl;
+                cout << ftemp2 + ftemp << endl;
+                break;
+            case OP_FSUB:
+                SP -= sizeof(float);
+                ftemp = *(float*)(STACK+SP);
+                SP -= sizeof(float);
+                ftemp2 = *(float*)(STACK+SP);
+                cout << ftemp2 - ftemp << endl;
+                break;
+            case OP_FMUL:
+                SP -= sizeof(float);
+                ftemp = *(float*)(STACK+SP);
+                SP -= sizeof(float);
+                ftemp2 = *(float*)(STACK+SP);
+                cout << ftemp2 * ftemp << endl;
+                break;
+            case OP_FDIV:
+                SP -= sizeof(float);
+                ftemp = *(float*)(STACK+SP);
+                SP -= sizeof(float);
+                ftemp2 = *(float*)(STACK+SP);
+                cout << ftemp2 / ftemp << endl;
                 break;
             default:
                 //error
