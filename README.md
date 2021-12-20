@@ -24,7 +24,7 @@ ADD
 If the EXP_PARSER flag is set then the input file should only be an expression such as:
 
 ```
-((4234+545)*144)%5
+((4234+545)*144) % 5
 end.
 ```
 
@@ -48,7 +48,7 @@ make
 
 to run a test example, make sure DEBUG flag is ON, EXP_PARSER flag is ON, BINARY flag is ON. Create a file in the 'cmake-build-debug' directory called `mytest.pascal' which looks like:
 ```
-(25252+4363634+124*2 DIV 7) / 2.1
+(25252+4363634+124*2 DIV 7)/2.1
 end;
 ```
 Then run:
