@@ -81,8 +81,6 @@ void MyEmulator::emulate() {
                 temp=*(int *)(DATA+temp);
                 // value of the variable;
                 *(int *)(STACK+SP)=temp; SP+=sizeof(int); // push
-            case OP_HALT:
-                exit(0);
             case OP_PUSHI:
                 //immediate integer
                 itemp = *(int*)(CODE+IP);
@@ -105,32 +103,6 @@ void MyEmulator::emulate() {
                 itemp2 = *(int*)(STACK+SP);
                 *(int *)(STACK+SP)=itemp; SP+=sizeof(int); // push
                 *(int *)(STACK+SP)=itemp2; SP+=sizeof(int); // push
-                break;
-            case OP_CVI:
-                SP -= sizeof(float);
-                ftemp = *(float*)(STACK+SP);
-                itemp = (int)floorf(ftemp);
-                *(int *)(STACK+SP)=itemp; SP+=sizeof(int); // push
-                break;
-            case OP_CVR:
-                SP -= sizeof(int);
-                itemp = *(int*)(STACK+SP);
-                ftemp = (float)itemp;
-                *(float *)(STACK+SP)=ftemp; SP+=sizeof(float); // push
-                break;
-            case OP_NEG:
-                SP -= sizeof(int);
-                itemp = *(int*)(STACK+SP);
-                ians= -itemp;
-                *(int *)(STACK+SP)=ians; SP+=sizeof(int); // push
-                cout << ians << endl;
-                break;
-            case OP_FNEG:
-                SP -= sizeof(float);
-                ftemp = *(float*)(STACK+SP);
-                fans= -ftemp;
-                *(float *)(STACK+SP)=fans; SP+=sizeof(float); // push
-                cout << fans << endl;
                 break;
             case OP_ADD:
                 SP -= sizeof(int);
@@ -212,6 +184,74 @@ void MyEmulator::emulate() {
                 fans = ftemp2 / ftemp;
                 *(float *)(STACK+SP)=fans; SP+=sizeof(float); // push
                 cout << fans << endl;
+                break;
+            case OP_NEQ:
+                break;
+            case OP_EQL:
+                break;
+            case OP_AND:
+                break;
+            case OP_OR:
+                break;
+            case OP_GTR:
+                break;
+            case OP_LSS:
+                break;
+            case OP_GEQ:
+                break;
+            case OP_LEQ:
+                break;
+            case OP_CVI:
+                SP -= sizeof(float);
+                ftemp = *(float*)(STACK+SP);
+                itemp = (int)floorf(ftemp);
+                *(int *)(STACK+SP)=itemp; SP+=sizeof(int); // push
+                break;
+            case OP_CVR:
+                SP -= sizeof(int);
+                itemp = *(int*)(STACK+SP);
+                ftemp = (float)itemp;
+                *(float *)(STACK+SP)=ftemp; SP+=sizeof(float); // push
+                break;
+            case OP_NEG:
+                SP -= sizeof(int);
+                itemp = *(int*)(STACK+SP);
+                ians= -itemp;
+                *(int *)(STACK+SP)=ians; SP+=sizeof(int); // push
+                cout << ians << endl;
+                break;
+            case OP_FNEG:
+                SP -= sizeof(float);
+                ftemp = *(float*)(STACK+SP);
+                fans= -ftemp;
+                *(float *)(STACK+SP)=fans; SP+=sizeof(float); // push
+                cout << fans << endl;
+                break;
+            case OP_NOT:
+                break;
+            case OP_JTAB:
+                break;
+            case OP_CALL:
+                break;
+            case OP_RET:
+                break;
+            case OP_JMP:
+                break;
+            case OP_JTRUE:
+                break;
+            case OP_JFALSE:
+                break;
+            case OP_HALT:
+                exit(0);
+            case OP_PRINTINT:
+                break;
+            case OP_PRINTCHR:
+                break;
+            case OP_PRINTLN:
+                break;
+            case OP_MALLOC:
+                break;
+            case OP_FREE:
                 break;
             default:
                 cout << "Unrecognized opcode: " << opcode << endl;
