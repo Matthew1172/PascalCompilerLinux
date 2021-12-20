@@ -27,6 +27,7 @@ enum Opcodes : int
     OP_GEQ = 17,
     OP_LEQ = 18,
     OP_FPUSHI = 19,
+    OP_MOD = 20,
     OP_FDIV = 98,
     OP_FMUL = 99,
     OP_FADD = 100,

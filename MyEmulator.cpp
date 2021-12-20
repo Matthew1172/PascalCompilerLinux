@@ -4,6 +4,29 @@
 #include "MyEmulator.h"
 using namespace std;
 
+MyEmulator::MyEmulator() {
+
+}
+
+MyEmulator::MyEmulator(string fp) {
+    setFilepath(fp);
+    readPcodeFile();
+}
+
+MyEmulator::~MyEmulator() {
+    closePcodeFile();
+}
+
+void MyEmulator::setFilepath(string fp) {
+    if(fp.length() > MAXFILEPATH){
+        //filename too large
+        exit(-5);
+    }
+    //initialize filepath from string
+    strcpy(this->fp, fp.c_str());
+    //check access
+    //checkOutputFileAccess();
+}
 
 void MyEmulator::readPcodeFile() {
     rv = access(fp, F_OK);
@@ -35,6 +58,12 @@ void MyEmulator::closePcodeFile() {
     printf("close() FROM EMULATOR successful! \n");
 }
 
+void MyEmulator::printStack() {
+    for(byte b = 0x00; b < SP; b+=0x01){
+        cout << *(STACK+b) << endl;
+    }
+}
+
 void MyEmulator::emulate() {
     IP = 0;
     flags = 0x00000000;
@@ -43,6 +72,8 @@ void MyEmulator::emulate() {
     float ftemp2;
     int itemp;
     int itemp2;
+    int ians;
+    float fans;
     while (1) {
         switch (opcode = CODE[IP++]) {
             case OP_PUSH:
@@ -92,93 +123,87 @@ void MyEmulator::emulate() {
                 itemp = *(int*)(STACK+SP);
                 SP -= sizeof(int);
                 itemp2 = *(int*)(STACK+SP);
-                cout << itemp2 + itemp << endl;
+                ians = itemp2 + itemp;
+                *(int *)(STACK+SP)=ians; SP+=sizeof(int); // push
+                cout << ians << endl;
                 break;
             case OP_SUB:
                 SP -= sizeof(int);
                 itemp = *(int*)(STACK+SP);
                 SP -= sizeof(int);
                 itemp2 = *(int*)(STACK+SP);
-                cout << itemp2 - itemp << endl;
+                ians = itemp2 - itemp;
+                *(int *)(STACK+SP)=ians; SP+=sizeof(int); // push
+                cout << ians << endl;
                 break;
             case OP_MUL:
                 SP -= sizeof(int);
                 itemp = *(int*)(STACK+SP);
                 SP -= sizeof(int);
                 itemp2 = *(int*)(STACK+SP);
-                cout << itemp2 * itemp << endl;
+                ians = itemp2 * itemp;
+                *(int *)(STACK+SP)=ians; SP+=sizeof(int); // push
+                cout << ians << endl;
                 break;
             case OP_DIV:
                 SP -= sizeof(int);
                 itemp = *(int*)(STACK+SP);
                 SP -= sizeof(int);
                 itemp2 = *(int*)(STACK+SP);
-                cout << itemp2 / itemp << endl;
+                ians = itemp2 / itemp;
+                *(int *)(STACK+SP)=ians; SP+=sizeof(int); // push
+                cout << ians << endl;
+                break;
+            case OP_MOD:
+                SP -= sizeof(int);
+                itemp = *(int*)(STACK+SP);
+                SP -= sizeof(int);
+                itemp2 = *(int*)(STACK+SP);
+                ians = itemp2 % itemp;
+                *(int *)(STACK+SP)=ians; SP+=sizeof(int); // push
+                cout << ians << endl;
                 break;
             case OP_FADD:
                 SP -= sizeof(float);
                 ftemp = *(float*)(STACK+SP);
                 SP -= sizeof(float);
                 ftemp2 = *(float*)(STACK+SP);
-                cout << ftemp2 + ftemp << endl;
+                fans = ftemp2 + ftemp;
+                *(float *)(STACK+SP)=fans; SP+=sizeof(float); // push
+                cout << fans << endl;
                 break;
             case OP_FSUB:
                 SP -= sizeof(float);
                 ftemp = *(float*)(STACK+SP);
                 SP -= sizeof(float);
                 ftemp2 = *(float*)(STACK+SP);
-                cout << ftemp2 - ftemp << endl;
+                fans = ftemp2 - ftemp;
+                *(float *)(STACK+SP)=fans; SP+=sizeof(float); // push
+                cout << fans << endl;
                 break;
             case OP_FMUL:
                 SP -= sizeof(float);
                 ftemp = *(float*)(STACK+SP);
                 SP -= sizeof(float);
                 ftemp2 = *(float*)(STACK+SP);
-                cout << ftemp2 * ftemp << endl;
+                fans = ftemp2 * ftemp;
+                *(float *)(STACK+SP)=fans; SP+=sizeof(float); // push
+                cout << fans << endl;
                 break;
             case OP_FDIV:
                 SP -= sizeof(float);
                 ftemp = *(float*)(STACK+SP);
                 SP -= sizeof(float);
                 ftemp2 = *(float*)(STACK+SP);
-                cout << ftemp2 / ftemp << endl;
+                fans = ftemp2 / ftemp;
+                *(float *)(STACK+SP)=fans; SP+=sizeof(float); // push
+                cout << fans << endl;
                 break;
             default:
-                //error
-                break;
+                cout << "Unrecognized opcode: " << opcode << endl;
+                exit(-555);
         }
         //doesn't really work
         //printStack();
     }
 }
-
-void MyEmulator::printStack() {
-    for(byte b = 0x00; b < SP; b+=0x01){
-        cout << *(STACK+b) << endl;
-    }
-}
-
-MyEmulator::MyEmulator() {
-
-}
-
-MyEmulator::MyEmulator(string fp) {
-    setFilepath(fp);
-    readPcodeFile();
-}
-
-void MyEmulator::setFilepath(string fp) {
-        if(fp.length() > MAXFILEPATH){
-            //filename too large
-            exit(-5);
-        }
-        //initialize filepath from string
-        strcpy(this->fp, fp.c_str());
-        //check access
-        //checkOutputFileAccess();
-}
-
-MyEmulator::~MyEmulator() {
-    closePcodeFile();
-}
-

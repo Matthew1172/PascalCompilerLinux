@@ -1,4 +1,5 @@
 #define DEBUG 1
+#define BINARY 1
 
 //for transform() to turn a string to all uppercase
 #include <algorithm>
@@ -38,7 +39,7 @@ using namespace std;
 string pascal = "";
 string pcode = "";
 //Emitter *MyEmitter = new Emitter(pcode, 1);
-Emitter *MyEmitter = new Emitter(1);
+Emitter *MyEmitter = new Emitter(BINARY);
 
 const long MAXFILEPATH = 500;
 
@@ -135,9 +136,14 @@ int main(int argc, char** argv) {
     }
     printf("close() source file successful! \n");
 
-    //Create an emulator from the pcode file we just created
-    MyEmulator* emulator = new MyEmulator(pcode);
-    emulator->emulate();
+    if(BINARY){
+        //Create an emulator from the pcode file we just created
+        MyEmulator* emulator = new MyEmulator(pcode);
+        emulator->emulate();
+    }else{
+        cout << "Binary flag in source code is set to false. Check the output file for human readible pcode. To emulate this code, set the BINARY flag to 1 in source code." << endl;
+    }
+    exit(0);
 }
 
 void error() {
@@ -313,7 +319,8 @@ Types T(){
     while(curtoken==TK_MUL
     ||curtoken==TK_DIV
     ||curtoken==TK_DIVFL
-    ||curtoken==TK_AND) {
+    ||curtoken==TK_AND
+    ||curtoken==TK_MOD) {
         switch(curtoken) {
             case TK_MUL:
                 match(TK_MUL);
@@ -336,6 +343,11 @@ Types T(){
                 match(TK_AND);
                 t2=T();
                 t1=do_AND(t1,t2);
+                break;
+            case TK_MOD:
+                match(TK_MOD);
+                t2=T();
+                t1=do_MOD(t1,t2);
                 break;
             default:
                 break;
@@ -509,6 +521,16 @@ Types do_DIV(Types arg1, Types arg2) {
 Types do_DIVFL(Types arg1, Types arg2) {
     if(arg1 == TP_INT && arg2 == TP_INT){
         MyEmitter->emit_opcode(OP_DIV);
+        return TP_INT;
+    }else{
+        error();
+        exit(-555);
+    }
+}
+
+Types do_MOD(Types arg1, Types arg2){
+    if(arg1 == TP_INT && arg2 == TP_INT){
+        MyEmitter->emit_opcode(OP_MOD);
         return TP_INT;
     }else{
         error();

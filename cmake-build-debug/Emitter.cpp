@@ -196,6 +196,15 @@ void Emitter::emit_opcode(Opcodes op){
                 writePcode("FSUB\n");
             }
             break;
+        case OP_MOD:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_MOD);
+            }else{
+                //write human readible pcode
+                writePcode("MOD\n");
+            }
+            break;
         case OP_XCHG:
             if(this->binary){
                 //write binary pcode
