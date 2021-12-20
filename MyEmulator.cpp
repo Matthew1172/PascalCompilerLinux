@@ -118,6 +118,20 @@ void MyEmulator::emulate() {
                 ftemp = (float)itemp;
                 *(float *)(STACK+SP)=ftemp; SP+=sizeof(float); // push
                 break;
+            case OP_NEG:
+                SP -= sizeof(int);
+                itemp = *(int*)(STACK+SP);
+                ians= -itemp;
+                *(int *)(STACK+SP)=ians; SP+=sizeof(int); // push
+                cout << ians << endl;
+                break;
+            case OP_FNEG:
+                SP -= sizeof(float);
+                ftemp = *(float*)(STACK+SP);
+                fans= -ftemp;
+                *(float *)(STACK+SP)=fans; SP+=sizeof(float); // push
+                cout << fans << endl;
+                break;
             case OP_ADD:
                 SP -= sizeof(int);
                 itemp = *(int*)(STACK+SP);

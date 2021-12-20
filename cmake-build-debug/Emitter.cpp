@@ -124,6 +124,24 @@ void Emitter::emit_opcode(Opcodes op){
                 writePcode("FPUSHI ");
             }
             break;
+        case OP_NEG:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_NEG);
+            }else{
+                //write human readible pcode
+                writePcode("NEG\n");
+            }
+            break;
+        case OP_FNEG:
+            if(this->binary){
+                //write binary pcode
+                writePcodeBinary(OP_FNEG);
+            }else{
+                //write human readible pcode
+                writePcode("FNEG\n");
+            }
+            break;
         case OP_MUL:
             if(this->binary){
                 //write binary pcode

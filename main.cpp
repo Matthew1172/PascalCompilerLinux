@@ -367,6 +367,17 @@ Types F(){
         case TK_MINUS:
             match(TK_MINUS);
             expT = F();
+            //check what type we're negating
+            switch(expT){
+                case TP_INT:
+                    MyEmitter->emit_opcode(OP_NEG);
+                    break;
+                case TP_REAL:
+                    MyEmitter->emit_opcode(OP_FNEG);
+                case TP_BOOL:
+                default:
+                    break;
+            }
             break;
         case TK_NOT:
             //handle boolean and integer cases
