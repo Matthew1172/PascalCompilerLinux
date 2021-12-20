@@ -1,4 +1,5 @@
 var x,y,z,j,k,x:integer;
 l,m,n:real;
+n,m7,n4:char;
 begin
 end.

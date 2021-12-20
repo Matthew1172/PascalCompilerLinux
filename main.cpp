@@ -1,5 +1,14 @@
 #define DEBUG 1
 #define BINARY 1
+#define EXP_PARSER 0
+
+/*
+//check symbol table, could be a variable
+if(vars.find(curname) != vars.end()){
+    //it is a variable in the symbol table
+    curtoken = vars[curname].getTokenType();
+}else{
+}*/
 
 //for transform() to turn a string to all uppercase
 #include <algorithm>
@@ -56,6 +65,7 @@ public:
     void setTokenType(Tokens t);
     void setDataType(Types t);
     string getName();
+    Tokens getTokenType();
 };
 
 MyVar::MyVar(string name) {
@@ -84,6 +94,10 @@ MyVar::MyVar() {
 
 string MyVar::getName() {
     return this->name;
+}
+
+Tokens MyVar::getTokenType() {
+    return this->token_type;
 }
 
 
@@ -128,7 +142,6 @@ void begin_statement();
 void label_declaration();
 void var_declaration();
 void const_declaration();
-void varList();
 void error();
 
 void G();
@@ -147,7 +160,11 @@ Types do_MOD(Types arg1, Types arg2);
 Types do_AND(Types arg1, Types arg2);
 void match(Tokens t);
 
-
+void if_statement();
+void while_statement();
+void goto_statement();
+void assignment();
+void write_statement();
 
 
 
@@ -179,8 +196,11 @@ int main(int argc, char** argv) {
 
     initialize();
     gettoken();
-    //G();
-    compile();
+    if(EXP_PARSER){
+        G();
+    }else{
+        compile();
+    }
 
     //close file
     if(close(fd) != 0){
@@ -347,11 +367,6 @@ void var_declaration(){
     }
 }
 
-void varList(){
-    match(TK_UNKNOWN);
-
-}
-
 void label_declaration(){
 
 }
@@ -361,8 +376,30 @@ void const_declaration(){
 }
 
 void begin_statement(){
-    return;
+    match(TK_BEGIN);
+    restart:
+    switch (curtoken) {
+        case TK_IF:
+            if_statement(); goto restart;
+        case TK_WHILE:
+            while_statement(); goto restart;
+        case TK_GOTO:
+            goto_statement(); goto restart;
+        case TK_A_VAR:
+            assignment(); goto restart;
+        case TK_WRITE: // notice: TK_WRITE is not a keyword!
+            write_statement(); goto restart;
+        default:
+            break;
+    }
+    match(TK_END);
 }
+
+void if_statement(){}
+void while_statement(){}
+void goto_statement(){}
+void assignment(){}
+void write_statement(){}
 
 void match(Tokens t){
     if(curtoken != t){
@@ -992,8 +1029,10 @@ void gettoken() {
                     key = curname;
                     transform(key.begin(), key.end(),key.begin(), ::toupper);
                     if(keywords[key] == 0){
+
                         //unknown token, and cannot be EOF
                         curtoken = TK_UNKNOWN;
+
                     }else {
                         //token is a keyword
                         curtoken = keywords[key];

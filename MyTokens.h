@@ -64,6 +64,8 @@ enum Tokens : int
     TK_OBJ = 126,
     TK_BOOL = 127,
     TK_CHAR = 128,
+    TK_GOTO = 129,
+    TK_WRITE = 130,
     TK_UNKNOWN = 200
 };
 
@@ -76,6 +78,7 @@ map<std::string , Tokens>  initSymTable(){
     keywords["FOR"] = TK_FOR;
     keywords["DO"] = TK_DO;
     keywords["TO"] = TK_TO;
+    keywords["GOTO"] = TK_GOTO;
 
     keywords["INTEGER"] = TK_INT;
     keywords["REAL"] = TK_REAL;
@@ -90,6 +93,8 @@ map<std::string , Tokens>  initSymTable(){
     keywords["FUNCTION"] = TK_FUNC;
     keywords["LABEL"] = TK_LABEL;
     keywords["CONST"] = TK_CONST;
+
+    keywords["WRITE"] = TK_WRITE;
 
     keywords["AND"] = TK_AND;
     keywords["OR"] = TK_OR;
@@ -244,6 +249,12 @@ void printtoken(int curtoken, int curvalue, const string& curname, string poolOf
             break;
         case TK_CONST:
             cout << "Constant declaration token" << endl;
+            break;
+        case TK_GOTO:
+            cout << "GOTO token" << endl;
+            break;
+        case TK_WRITE:
+            cout << "Write token" << endl;
             break;
         default:
             cout << "Unknown token: " << curname << endl;
