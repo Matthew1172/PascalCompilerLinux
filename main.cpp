@@ -21,6 +21,8 @@
 #include <map>
 //need pow for real lit
 #include <cmath>
+//temporary token list
+#include <vector>
 //the emitter
 #include "cmake-build-debug/Emitter.h"
 //my pascal tokens
@@ -35,6 +37,55 @@
 #include "MyEmulator.h"
 
 using namespace std;
+
+class MyVar {
+private:
+    string name;
+    Tokens token_type;
+    bool staticType = false;
+    Types type;
+    short size;
+    size_t address;
+    int flags;
+    int initial = 0;
+public:
+    MyVar();
+    MyVar(string name);
+    void setAddress(size_t add);
+    void setSize(short size);
+    void setTokenType(Tokens t);
+    void setDataType(Types t);
+    string getName();
+};
+
+MyVar::MyVar(string name) {
+    this->name = name;
+}
+
+void MyVar::setAddress(size_t add) {
+    this->address = add;
+}
+
+void MyVar::setSize(short size) {
+    this->size = size;
+}
+
+void MyVar::setTokenType(Tokens t) {
+    this->token_type = t;
+}
+
+void MyVar::setDataType(Types t) {
+    this->type = t;
+}
+
+MyVar::MyVar() {
+
+}
+
+string MyVar::getName() {
+    return this->name;
+}
+
 
 string pascal = "";
 string pcode = "";
@@ -62,7 +113,9 @@ int stringIndex = 0;
 const short MAXREALS = 100;
 float poolOfReals[MAXREALS];
 int realIndex = 0;
-std::map<std::string , Tokens> keywords;
+map<string , Tokens> keywords;
+map<string, MyVar> vars;
+size_t address = 0;
 
 void initialize();
 void gettoken();
@@ -126,8 +179,8 @@ int main(int argc, char** argv) {
 
     initialize();
     gettoken();
-    G();
-    //compile();
+    //G();
+    compile();
 
     //close file
     if(close(fd) != 0){
@@ -179,7 +232,7 @@ void error() {
 
 
 void compile(){
-    header();
+    //header();
     declarations();
     begin_statement();
     match(TK_DOT);
@@ -193,12 +246,21 @@ void header(){
 void declarations(){
     restart:
     switch(curtoken){
-        case TK_LABEL:
-            label_declaration(); goto restart;
         case TK_VAR:
-            var_declaration(); goto restart;
+            var_declaration();
+            goto restart;
         case TK_CONST:
-            const_declaration(); goto restart;
+            const_declaration();
+            goto restart;
+        case TK_LABEL:
+            label_declaration();
+            goto restart;
+        case TK_PROC:
+            break;
+        case TK_FUNC:
+            break;
+        case TK_OBJ:
+        break;
         default:
             return;
     }
@@ -208,17 +270,81 @@ void var_declaration(){
     match(TK_VAR);
     restart:
     if(curtoken!=TK_UNKNOWN){
-        //error();
-        return;
+        error();
+        exit(-123);
     }
-    //auto* v = new std::vector<char*>;
-    //v->push_back(curname);
 
-    varList();
+    vector<string> *v = new vector<string>;
+    size_t tempaddr = 0;
+    //parse alternating sequence of TK_UNKNOWN and TK_COMMA
+    while(curtoken == TK_UNKNOWN || curtoken == TK_COMMA){
+        if(curtoken == TK_UNKNOWN ){
+            if(!count(v->begin(), v->end(), curname)
+               && vars.find(curname) == vars.end()){
+                v->push_back(curname);
+                tempaddr++;
+            }
+        }
+        gettoken();
+    }
+    if(curtoken != TK_COLON){
+        error();
+    }
+    //read type declaration
+    gettoken();
+    //we have the data type of all the vars just declared
+    //we have a 'vars' symbol table with all the names
+    MyVar var;
+    int i = address;
+    switch(curtoken){
+        case TK_INT:
+            address += tempaddr*4;
+            for(const string& s : *v){
+                var = MyVar(s);
+                var.setDataType(TP_INT);
+                var.setTokenType(TK_A_VAR);
+                var.setAddress(i);
+                var.setSize(4);
+                vars[s] = var;
+                i+=4;
+            }
+            break;
+        case TK_REAL:
+            address += tempaddr*4;
+            for(const string& s : *v){
+                var = MyVar(s);
+                var.setDataType(TP_REAL);
+                var.setTokenType(TK_A_VAR);
+                var.setAddress(i);
+                var.setSize(4);
+                vars[s] = var;
+                i+=4;
+            }
+            break;
+        case TK_BOOL:
+            break;
+        case TK_CHAR:
+            address += tempaddr*1;
+            for(const string& s : *v){
+                var = MyVar(s);
+                var.setDataType(TP_CHAR);
+                var.setTokenType(TK_A_VAR);
+                var.setAddress(i);
+                var.setSize(1);
+                vars[s] = var;
+                i+=1;
+            }
+            break;
+        default:
+            break;
+    }
 
-    if(DEBUG) printf("We have an unknown token");
-
-    if(curtoken == TK_UNKNOWN) goto restart;
+    v->clear();
+    gettoken();
+    match(TK_SEMICOLON);
+    if(curtoken == TK_UNKNOWN){
+        goto restart;
+    }
 }
 
 void varList(){
@@ -236,6 +362,14 @@ void const_declaration(){
 
 void begin_statement(){
     return;
+}
+
+void match(Tokens t){
+    if(curtoken != t){
+        error();
+    }
+    if(DEBUG) printtoken(curtoken, curvalue, curname, poolOfStrings, poolOfReals);
+    gettoken();
 }
 
 
@@ -560,15 +694,6 @@ Types do_AND(Types arg1, Types arg2) {
     }
 }
 
-void match(Tokens t){
-    if(curtoken != t){
-        error();
-    }
-    if(DEBUG) printtoken(curtoken, curvalue, curname, poolOfStrings, poolOfReals);
-    gettoken();
-}
-
-
 
 
 
@@ -766,8 +891,10 @@ void gettoken() {
                     curtoken = TK_ASSIGN;
                     break;
                 default:
+                    curtoken = TK_COLON;
                     break;
             }
+            *scanp--;
             break;
         case 'D':
             //scan ahead, and use whatever can be part of the number. Collect all digits and look for special cases like .

@@ -33,6 +33,8 @@ MyOpcodes.h
 /home/matthew/CLionProjects/PascalCompilerLinux/MyTokens.h
 map
 -
+iostream
+-
 
 /home/matthew/CLionProjects/PascalCompilerLinux/MyTypes.h
 
@@ -74,6 +76,8 @@ cstring
 map
 -
 cmath
+-
+vector
 -
 cmake-build-debug/Emitter.h
 /home/matthew/CLionProjects/PascalCompilerLinux/cmake-build-debug/Emitter.h

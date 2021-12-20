@@ -6,6 +6,7 @@
 #define PASCALCOMPILERLINUX_MYTOKENS_H
 
 #include <map>
+#include <iostream>
 using namespace std;
 
 enum Tokens : int
@@ -50,6 +51,7 @@ enum Tokens : int
     TK_WHILE = 113,
     TK_ELSE = 114,
     TK_INT = 115,
+    TK_REAL = 116,
     TK_ASSIGN = 117,
     TK_SEMICOLON = 118,
     TK_FOR = 119,
@@ -58,22 +60,36 @@ enum Tokens : int
     TK_LP = 122,
     TK_THEN = 123,
     TK_FUNC = 124,
+    TK_PROC = 125,
+    TK_OBJ = 126,
+    TK_BOOL = 127,
+    TK_CHAR = 128,
     TK_UNKNOWN = 200
 };
 
 map<std::string , Tokens>  initSymTable(){
     std::map<std::string , Tokens> keywords;
-    keywords["BEGIN"] = TK_BEGIN;
-    keywords["END"] = TK_END;
     keywords["IF"] = TK_IF;
+    keywords["THEN"] = TK_THEN;
     keywords["ELSE"] = TK_ELSE;
-    keywords["VAR"] = TK_VAR;
-    keywords["DO"] = TK_DO;
-    keywords["TO"] = TK_TO;
     keywords["WHILE"] = TK_WHILE;
     keywords["FOR"] = TK_FOR;
+    keywords["DO"] = TK_DO;
+    keywords["TO"] = TK_TO;
+
     keywords["INTEGER"] = TK_INT;
-    keywords["THEN"] = TK_THEN;
+    keywords["REAL"] = TK_REAL;
+    keywords["BOOL"] = TK_BOOL;
+    keywords["CHAR"] = TK_CHAR;
+
+    keywords["BEGIN"] = TK_BEGIN;
+    keywords["END"] = TK_END;
+
+    keywords["VAR"] = TK_VAR;
+    keywords["PROCEDURE"] = TK_PROC;
+    keywords["FUNCTION"] = TK_FUNC;
+    keywords["LABEL"] = TK_LABEL;
+    keywords["CONST"] = TK_CONST;
 
     keywords["AND"] = TK_AND;
     keywords["OR"] = TK_OR;
@@ -213,6 +229,21 @@ void printtoken(int curtoken, int curvalue, const string& curname, string poolOf
             break;
         case TK_DOT:
             cout << "DOT token" << endl;
+            break;
+        case TK_FUNC:
+            cout << "Function declaration token" << endl;
+            break;
+        case TK_PROC:
+            cout << "Procedure declaration token" << endl;
+            break;
+        case TK_OBJ:
+            cout << "Object declaration token" << endl;
+            break;
+        case TK_LABEL:
+            cout << "Label declaration token" << endl;
+            break;
+        case TK_CONST:
+            cout << "Constant declaration token" << endl;
             break;
         default:
             cout << "Unknown token: " << curname << endl;
