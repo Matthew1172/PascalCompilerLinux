@@ -49,7 +49,7 @@ make
 to run a test example, make sure DEBUG flag is ON, EXP_PARSER flag is ON, BINARY flag is ON. Create a file in the 'cmake-build-debug' directory called `mytest.pascal' which looks like:
 ```
 (25252+4363634+124*2 DIV 7)/2.1
-end;
+end.
 ```
 Then run:
 ```
