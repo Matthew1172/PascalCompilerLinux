@@ -37,10 +37,13 @@ t : char;
 begin
 end.
 ```
-
-To download, compile and run the code, paste these comands in your terminal:
+To download the code, run the following command:
 ```
 git clone https://github.com/Matthew1172/PascalCompilerLinux
+```
+
+To compile and run the code, paste these comands in your terminal:
+```
 cd PascalCompilerLinux/cmake-build-debug
 make
 ./PascalCompilerLinux <input-file> <output-file>
